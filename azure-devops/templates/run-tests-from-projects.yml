@@ -1,0 +1,14 @@
+#
+# Run tests using 'dotnet test'
+#
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Dotnet Test: Run Unit Tests'
+  inputs:
+    command: test
+    arguments: "--no-restore --no-build --configuration $(Build.Configuration)"
+    projects: |
+      **/*UnitTests.csproj
+    
+    testRunTitle: 'Unit Tests'

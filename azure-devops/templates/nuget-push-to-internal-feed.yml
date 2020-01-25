@@ -1,0 +1,11 @@
+steps:
+  - task: NuGetAuthenticate@0
+    displayName: 'NuGet Authenticate'
+  - task: NuGetCommand@2
+    displayName: 'NuGet push'
+    inputs:
+      command: push
+      publishVstsFeed: 'Public-Automation-Examples/Private-Internal'
+      nuGetFeedType: internal
+      allowPackageConflicts: false
+      packagesToPush: src/GreyhamWooHoo.Interceptor.Core/bin/$(Build.Configuration)/GreyhamWooHoo.Interceptor.Core.$(Build.BuildNumber).nupkg

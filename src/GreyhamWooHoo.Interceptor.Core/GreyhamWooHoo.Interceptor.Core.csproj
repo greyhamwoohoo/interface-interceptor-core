@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Authors>GreyhamWooHoo</Authors>
+    <Company>GreyhamWooHoo</Company>
+    <Product>GreyhamWooHoo.Interceptor</Product>
+    <Description>Intercept calls to an interface before or after the concrete implementation is invoked. 
+</Description>
+    <Copyright>(c) 2020 GreyhamWooHoo</Copyright>
+    <PackageProjectUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</RepositoryUrl>
+    <PackageTags>Testing;Mocking</PackageTags>
+    <PackageReleaseNotes>Initial release. 
+</PackageReleaseNotes>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+</Project>
