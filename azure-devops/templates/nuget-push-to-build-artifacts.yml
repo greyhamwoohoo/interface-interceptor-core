@@ -1,0 +1,6 @@
+steps:
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: src/GreyhamWooHoo.Interceptor.Core/bin/$(Build.Configuration)/GreyhamWooHoo.Interceptor.Core.$(Build.BuildNumber).nupkg
+      artifactName: 'PublishableNugetPackage'
+  

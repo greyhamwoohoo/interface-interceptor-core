@@ -1,0 +1,9 @@
+#
+# Pack Nuget
+#
+
+steps:
+- task: CmdLine@2
+  displayName: 'dotnet pack' 
+  inputs:
+    script: 'dotnet pack src/GreyhamWooHoo.Interceptor.Core/GreyhamWooHoo.Interceptor.Core.csproj --configuration=$(Build.Configuration) /p:PackageVersion=$(Build.BuildNumber) /p:Version=$(Build.BuildNumber) --no-restore --verbosity Detailed'

@@ -1,0 +1,24 @@
+trigger: none
+pr:
+- master
+
+variables:
+- group: interface-interceptor-core-variables
+- name: Build.Configuration
+  value: Release
+
+name: $(SemanticMajorVersion).$(SemanticMinorVersion).1000-$(SourceBranchName)-$(Rev:r)
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-18.04
+
+    steps:
+    - template: templates/restore-and-build.yml
+    - template: templates/run-tests-from-projects.yml
+    - template: templates/nuget-pack.yml        
+    - template: templates/nuget-push-to-internal-feed.yml
+    - template: templates/nuget-push-to-build-artifacts.yml
