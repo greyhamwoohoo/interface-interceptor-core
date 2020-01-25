@@ -40,10 +40,11 @@ stages:
       runOnce:
         deploy:
           steps:
+          - task: NuGetToolInstaller@1            
           - download: current
             artifact: PublishableNugetPackage
           - powershell: |
-              nuget push "$($env:Pipeline_Workspace)/PublishableNugetPackage/GreyhamWooHoo.Interceptor.Core.$($env:Build_BuildNumber).nupkg" $($env:NugetPushKey) -Source https://api.nuget.org/v3/index.json
+              nuget.exe push "$($env:Pipeline_Workspace)/PublishableNugetPackage/GreyhamWooHoo.Interceptor.Core.$($env:Build_BuildNumber).nupkg" $($env:NugetPushKey) -Source https://api.nuget.org/v3/index.json
             failOnStderr: true
             workingDirectory: '$(Pipeline.Workspace)'
             displayName: 'Publish to Public nuget.org'
