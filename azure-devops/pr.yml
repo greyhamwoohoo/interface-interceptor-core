@@ -4,6 +4,7 @@ pr:
 
 variables:
 - group: interface-interceptor-core-variables
+- group: interface-interceptor-core-secrets
 - name: Build.Configuration
   value: Release
 
