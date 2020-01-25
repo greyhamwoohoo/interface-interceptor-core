@@ -4,24 +4,24 @@ Intercept calls to one or more interface methods and (optionally) provide OnBefo
 ## What is it good for?
 Intercept interface calls made on a concrete implementation: Capture and replay return values / parameters at the 'edge' of your (in-process) API, service or app. 
 
-Ideal for testing. Using this package implies your test framework has an in-process 'capture' and 'replay' workflow / pattern. 
+Ideal for testing (particularly: in-process component testing). Using this package implies your test framework has the ability to override the dependency injection container before service initialization and can be executed in two workflows: Capture; and Replay. 
 
 Optionally provide callbacks OnBefore, OnAfter or Stub the entire execution of the interface method. 
 
-For example: if you have an Interface called ITheInterface with a method call DoSomething() that returns an int value, the following will provide a callback to capture the value:
+For example: if you have an Interface called ITheInterface with a method called DoSomething() that returns an int value, the following will provide a callback to capture the return value after the concrete implementation has been invoked:
 
 ```csharp
 private readonly TheInterfaceImplementation _originalImplementation = new TheInterfaceImplementation();
 
 var theReturnValue = default(int);
 
- var _interceptedInterface = new InterceptorProxyBuilder<ITheInterface>()
-                .For(_originalImplementation)
-                .InterceptAfterExecutionOf(theMethodCalled: nameof(ITheInterface.DoSomething), andCallbackWith: result =>
-                {
-                    theReturnValue = (int) result.ReturnValue;
-                })
-                .Build();;
+var _interceptedInterface = new InterceptorProxyBuilder<ITheInterface>()
+    .For(_originalImplementation)
+    .InterceptAfterExecutionOf(theMethodCalled: nameof(ITheInterface.DoSomething), andCallbackWith: result =>
+    {
+        theReturnValue = (int) result.ReturnValue;
+    })
+    .Build();;
 
 // Invoke the interface: the original implementation will be called and then the above handler invoked. 
 var result = _interceptedInterface.DoSomething();
@@ -29,7 +29,7 @@ var result = _interceptedInterface.DoSomething();
  See the .UnitTests project for how to configure OnBefore, OnAfter and Stub Executions in place of the original method. 
 
 ## Limitations
-Many! This is not intended to be a unit testing or universal mocking tool. More an intellectual exercise to learn DispatchProxy :)
+Many! This is not intended to be a unit testing or universal mocking tool - more an intellectual exercise so I could learn DispatchProxy :)
 
 Main limitations are:
 
@@ -38,7 +38,7 @@ Main limitations are:
 3. Probably lots, lots more I haven't considered. 
 
 ## Can't you do this with Unit Testing / Mocking tools?
-Yeah! Almost certainly. NSubstitute looked the most promising to achieve what I wanted here. Consider this more an intellectual exercise :)
+Yeah! Almost certainly in most cases. Try it :)
 
 ## References
 | Reference | Link |

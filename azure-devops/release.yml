@@ -6,6 +6,7 @@ variables:
 # Variable Group Contains: 
 #   SemanticMajorVersion, 
 #   SemanticMinorVersion
+#   NugetPushKey
 - group: interface-interceptor-core-variables
 - name: Build.Configuration
   value: Release
@@ -42,7 +43,7 @@ stages:
           - download: current
             artifact: PublishableNugetPackage
           - powershell: |
-              Get-ChildItem $(Pipeline.Workspace) -Recurse
+              nuget push "$($env:Pipeline_Workspace)/PublishableNugetPackage/GreyhamWooHoo.Interceptor.Core.$($env:Build_BuildNumber).nupkg" $($env:NugetPushKey) -Source https://api.nuget.org/v3/index.json
             failOnStderr: true
             workingDirectory: '$(Pipeline.Workspace)'
-            displayName: 'List everything'
+            displayName: 'Publish to Public nuget.org'
