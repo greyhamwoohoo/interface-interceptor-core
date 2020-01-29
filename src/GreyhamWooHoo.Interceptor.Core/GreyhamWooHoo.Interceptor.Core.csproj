@@ -10,8 +10,12 @@
     <Copyright>(c) 2020 GreyhamWooHoo</Copyright>
     <PackageProjectUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</RepositoryUrl>
-    <PackageTags>Testing;Mocking</PackageTags>
-    <PackageReleaseNotes>Initial release. 
+    <PackageTags>Testing;Mocking;Capture;Replay</PackageTags>
+    <PackageReleaseNotes>1.0.8:
+- Adding support for async tasks / methods
+
+1.0.7:
+- Initial release. 
 </PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
