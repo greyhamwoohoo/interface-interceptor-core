@@ -1,13 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using GreyhamWooHoo.Interceptor.Core.UnitTests.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
 {
-    interface IAfterExecutionTestInterface
+    public interface IAfterExecutionTestInterface
     {
-        void TheVoidMethod();
-        int TheIntMethod();
-        Task TheTaskVoidMethod();
-        Task<int> TheTaskIntMethod();
-        Task TheExceptionTaskMethod();
+        void MethodReturnsVoid();
+        int MethodReturnsInt();
+        Task MethodReturnsTaskVoid();
+        Task<int> MethodReturnsTaskInt();
+        Task MethodTaskThrowsException();
+        Task MethodReturnsAsyncVoidTask();
+        Task<IEnumerable<Product>> MethodReturnsAsyncGenericTask();
     }
 }

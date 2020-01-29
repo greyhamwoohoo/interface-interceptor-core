@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace GreyhamWooHoo.Interceptor.Core
@@ -77,11 +78,19 @@ namespace GreyhamWooHoo.Interceptor.Core
             // Callback to wait for the task to finish. For some long running tasks, there is the chance a task might not complete before the test finishes... and therefore, the results will not be attached...!
             _taskWaiter(task);
 
-            // Credit to:
-            // https://www.c-sharpcorner.com/article/aspect-oriented-programming-in-c-sharp-using-dispatchproxy/");
             object taskResult = null;
-            if (task.GetType().GetTypeInfo().IsGenericType && task.GetType().GetGenericTypeDefinition() == typeof(Task<>))
+
+            if (TaskIsGeneric(task) || TaskIsAsync(task))
             {
+                // ie:
+                // Task<int> TheMethod()
+
+                // ie:
+                // async Task TheMethod()
+                // async Task<T> TheMethod()
+
+                // Reference:
+                // https://www.c-sharpcorner.com/article/aspect-oriented-programming-in-c-sharp-using-dispatchproxy/");
                 var property = task.GetType().GetTypeInfo().GetProperties().FirstOrDefault(p => p.Name == "Result");
                 if (property != null)
                 {
@@ -92,10 +101,39 @@ namespace GreyhamWooHoo.Interceptor.Core
             }
             else
             {
+                // ie:
+                // Task TheMethod()
                 callbackResult = new AfterExecutionResult(thatMatchedRule);
             }
 
             return callbackResult;
+        }
+
+        /// <summary>
+        /// Determines if the Task is generic. ie: if it is specified something like this:
+        /// Task<int> TheMethod() ... 
+        /// Implicitly, the task has a Result property in this case. 
+        /// This method returns false if the method signature is like this:
+        /// async Task<int> TheMethod()
+        /// </summary>
+        /// <param name="task">The task</param>
+        /// <returns>true if the Task is generic; false otherwise. </returns>
+        private bool TaskIsGeneric(Task task)
+        {
+            return task.GetType().GetTypeInfo().IsGenericType && task.GetType().GetGenericTypeDefinition() == typeof(Task<>);
+        }
+
+        /// <summary>
+        /// Determines if the Task signature is async Task. ie:
+        /// async Task DoMethod() ... 
+        /// async Task<int> DoMethod() ...
+        /// NOTE: TODO: I dont fully understand this... need to dig deeper :)
+        /// </summary>
+        /// <param name="task">The task</param>
+        /// <returns>True if this is an async method (including void); false otherwise. </returns>
+        private bool TaskIsAsync(Task task)
+        {
+            return task.GetType().GetTypeInfo().IsGenericType && task.GetType().GetProperties().FirstOrDefault(p => p.Name == "Result") != null;
         }
 
         private void ExecuteBeforeExecutionRules(MethodInfo forTargetMethod, object[] withArgs)
