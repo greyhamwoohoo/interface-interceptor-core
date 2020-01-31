@@ -1,6 +1,4 @@
 using FluentAssertions;
-using FluentAssertions.Execution;
-using GreyhamWooHoo.Interceptor.Core.Builders;
 using GreyhamWooHoo.Interceptor.Core.Contracts;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.Models;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue;
@@ -165,6 +163,48 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             result.First().Description.Should().Be("Description1", because: "that is the description of the product. ");
             result.Last().Name.Should().Be("Name2", because: "that is the name of the product. ");
             result.Last().Description.Should().Be("Description2", because: "that is the description of the product. ");
+        }
+
+        [TestMethod]
+        public void AsyncVoidMethod()
+        {
+            // Arrange
+            var store = default(IAfterExecutionResult);
+
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodIsAsyncAndReturnsVoid), andCallbackWith: result =>
+            {
+                store = result;
+            })
+            .Build();
+
+            // Act
+            proxy.MethodIsAsyncAndReturnsVoid();
+            System.Threading.Thread.Sleep(20);
+
+            // Assert
+            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodIsAsyncAndReturnsVoid), false, inResult: store);
+        }
+
+        [TestMethod]
+        public void TaskWaiterIsInvokedForTasks()
+        {
+            // Arrange
+            var taskWaiterCalled = false;
+
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask), andCallbackWith: result =>
+            {
+            })
+            .WithTaskAwaiter(task =>
+            {
+                taskWaiterCalled = true;
+                task.Wait();
+            })
+            .Build();
+
+            // Act
+            var task = proxy.MethodReturnsAsyncVoidTask();
+
+            taskWaiterCalled.Should().BeTrue(because: "we provided our custom task waiter. ");
         }
     }
 }

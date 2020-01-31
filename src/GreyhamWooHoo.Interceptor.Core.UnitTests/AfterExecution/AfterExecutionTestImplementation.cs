@@ -79,5 +79,12 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
         {
             Message = $"Invoked: {nameof(MethodReturnsVoid)}";
         }
+
+        public async void MethodIsAsyncAndReturnsVoid()
+        {
+            await Task.Run(() => System.Threading.Thread.Sleep(1));
+
+            Message = $"Invoked: {nameof(MethodIsAsyncAndReturnsVoid)}";
+        }
     }
 }
