@@ -166,5 +166,24 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             result.Last().Name.Should().Be("Name2", because: "that is the name of the product. ");
             result.Last().Description.Should().Be("Description2", because: "that is the description of the product. ");
         }
+
+        [TestMethod]
+        public void AsyncVoidMethod()
+        {
+            // Arrange
+            var store = default(IAfterExecutionResult);
+
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodIsAsyncAndReturnsVoid), andCallbackWith: result =>
+            {
+                store = result;
+            })
+            .Build();
+
+            // Act
+            proxy.MethodIsAsyncAndReturnsVoid();
+
+            // Assert
+            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodIsAsyncAndReturnsVoid), false, inResult: store);
+        }
     }
 }

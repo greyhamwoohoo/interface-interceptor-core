@@ -11,7 +11,10 @@
     <PackageProjectUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</RepositoryUrl>
     <PackageTags>Testing;Mocking;Capture;Replay</PackageTags>
-    <PackageReleaseNotes>1.0.8:
+    <PackageReleaseNotes>1.0.9:
+- Adding async void methods
+
+1.0.8:
 - Adding support for async tasks / methods
 
 1.0.7:

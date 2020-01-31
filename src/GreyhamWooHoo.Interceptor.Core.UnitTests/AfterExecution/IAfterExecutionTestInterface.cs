@@ -13,5 +13,6 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
         Task MethodTaskThrowsException();
         Task MethodReturnsAsyncVoidTask();
         Task<IEnumerable<Product>> MethodReturnsAsyncGenericTask();
+        void MethodIsAsyncAndReturnsVoid();
     }
 }
