@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using GreyhamWooHoo.Interceptor.Core.Builders;
+using GreyhamWooHoo.Interceptor.Core.Contracts.Generic;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.LifecycleExecution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +14,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
     {
         private readonly LifecycleExecutionTestImplementation _originalImplementation = new LifecycleExecutionTestImplementation();
 
-        private InterceptorProxyBuilder<ILifecycleExecutionTestInterface> _builder;
+        private IInterceptorProxyBuilder<ILifecycleExecutionTestInterface> _builder;
 
         [TestInitialize]
         public void SetupReturnValueTests()

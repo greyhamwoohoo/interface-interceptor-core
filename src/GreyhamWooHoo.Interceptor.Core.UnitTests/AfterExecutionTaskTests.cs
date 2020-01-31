@@ -1,6 +1,4 @@
 using FluentAssertions;
-using FluentAssertions.Execution;
-using GreyhamWooHoo.Interceptor.Core.Builders;
 using GreyhamWooHoo.Interceptor.Core.Contracts;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.Models;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue;
@@ -181,9 +179,32 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
 
             // Act
             proxy.MethodIsAsyncAndReturnsVoid();
+            System.Threading.Thread.Sleep(20);
 
             // Assert
             AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodIsAsyncAndReturnsVoid), false, inResult: store);
+        }
+
+        [TestMethod]
+        public void TaskWaiterIsInvokedForTasks()
+        {
+            // Arrange
+            var taskWaiterCalled = false;
+
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask), andCallbackWith: result =>
+            {
+            })
+            .WithTaskAwaiter(task =>
+            {
+                taskWaiterCalled = true;
+                task.Wait();
+            })
+            .Build();
+
+            // Act
+            var task = proxy.MethodReturnsAsyncVoidTask();
+
+            taskWaiterCalled.Should().BeTrue(because: "we provided our custom task waiter. ");
         }
     }
 }

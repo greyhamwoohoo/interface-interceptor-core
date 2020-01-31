@@ -1,7 +1,9 @@
 ﻿using GreyhamWooHoo.Interceptor.Core.Contracts;
+using GreyhamWooHoo.Interceptor.Core.Contracts.Generic;
 using GreyhamWooHoo.Interceptor.Core.Rules;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace GreyhamWooHoo.Interceptor.Core.Builders
@@ -13,7 +15,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
     /// Interception rules include OnBeforeExecution, OnAfterExecution and Stubbing. 
     /// </remarks>
     /// <typeparam name="T">The interface whose methods are to be intercepted.</typeparam>
-    public class InterceptorProxyBuilder<T>
+    public class InterceptorProxyBuilder<T> : IInterceptorProxyBuilder<T>, IInterceptorProxyBuilder where T : class
     {
         private T _instance;
         private Action<Task> _taskWaiter;
@@ -31,9 +33,9 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
             _taskWaiter = task => task.Wait();
         }
 
-        public InterceptorProxyBuilder<T> For(T instance)
+        public IInterceptorProxyBuilder<T> For(T instance)
         {
-            _instance = instance;
+            _instance = instance ?? throw new System.ArgumentNullException(nameof(instance));
             return this;
         }
 
@@ -42,7 +44,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         /// </summary>
         /// <param name="taskWaiter">A callback with the task to wait on (or not). </param>
         /// <returns></returns>
-        public InterceptorProxyBuilder<T> WithTaskAwaiter(Action<Task> taskWaiter)
+        public IInterceptorProxyBuilder<T> WithTaskAwaiter(Action<Task> taskWaiter)
         {
             _taskWaiter = taskWaiter;
             return this;
@@ -54,7 +56,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         /// <param name="theMethodCalled">Method name to intercept. </param>
         /// <param name="andCallbackWith">Callback to invoke after method has executed. </param>
         /// <returns></returns>
-        public InterceptorProxyBuilder<T> InterceptAfterExecutionOf(string theMethodCalled, Action<IAfterExecutionResult> andCallbackWith)
+        public IInterceptorProxyBuilder<T> InterceptAfterExecutionOf(string theMethodCalled, Action<IAfterExecutionResult> andCallbackWith)
         {
             AfterExecutionRules.Add(new AfterExecutionRule(theMethodCalled, andCallbackWith));
             return this;
@@ -65,7 +67,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         /// </summary>
         /// <param name="theMethodCalled">Method name to intercept. </param>
         /// <returns></returns>
-        public InterceptorProxyBuilder<T> InterceptAndStub(string theMethodCalled)
+        public IInterceptorProxyBuilder<T> InterceptAndStub(string theMethodCalled)
         {
             StubExecutionRules.Add(new StubExecutionRule(theMethodCalled, null));
             return this;
@@ -77,7 +79,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         /// <param name="theMethodCalled">Method name to stub.</param>
         /// <param name="withValue">Value to return from stubbed method. </param>
         /// <returns></returns>
-        public InterceptorProxyBuilder<T> InterceptAndStub(string theMethodCalled, object withValue)
+        public IInterceptorProxyBuilder<T> InterceptAndStub(string theMethodCalled, object withValue)
         {
             StubExecutionRules.Add(new StubExecutionRule(theMethodCalled, withValue));
             return this;
@@ -89,7 +91,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         /// <param name="theMethodNamed">Method name to intercept. </param>
         /// <param name="andCallBackWith">Callback to invoke before execution. The callback is passed the args, method name, rule and parameter dictionary. </param>
         /// <returns></returns>
-        public InterceptorProxyBuilder<T> InterceptBeforeExecutionOf(string theMethodNamed, Action<IBeforeExecutionResult> andCallBackWith)
+        public IInterceptorProxyBuilder<T> InterceptBeforeExecutionOf(string theMethodNamed, Action<IBeforeExecutionResult> andCallBackWith)
         {
             BeforeExecutionRules.Add(new BeforeExecutionRule(theMethodNamed, andCallBackWith));
             return this;
@@ -104,6 +106,51 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
             if (null == _instance) throw new InvalidOperationException($"You must call the {nameof(For)} method and pass in a concrete instance of the interface implementation. ");
 
             return InterceptorProxy<T>.Create(_instance, BeforeExecutionRules, StubExecutionRules, AfterExecutionRules, _taskWaiter);
+        }
+
+        object IInterceptorProxyBuilder.Build()
+        {
+            return Build();
+        }
+
+        IInterceptorProxyBuilder IInterceptorProxyBuilder.For(object instance)
+        {
+            if(null != instance && !(typeof(T).GetTypeInfo().IsAssignableFrom(instance.GetType().GetTypeInfo())))
+            {
+                throw new System.ArgumentOutOfRangeException(nameof(instance), $"The InterceptorProxyBuilder instance is configured to work with the '{typeof(T).FullName}' and its derived types. The parameter passed in is of type '{instance.GetType().FullName}'");
+            }
+            For(instance as T);
+            return this;
+        }
+
+        IInterceptorProxyBuilder IInterceptorProxyBuilder.InterceptAfterExecutionOf(string theMethodCalled, Action<IAfterExecutionResult> andCallbackWith)
+        {
+            InterceptAfterExecutionOf(theMethodCalled, andCallbackWith);
+            return this;
+        }
+
+        IInterceptorProxyBuilder IInterceptorProxyBuilder.InterceptAndStub(string theMethodCalled)
+        {
+            InterceptAndStub(theMethodCalled);
+            return this;
+        }
+
+        IInterceptorProxyBuilder IInterceptorProxyBuilder.InterceptAndStub(string theMethodCalled, object withValue)
+        {
+            InterceptAndStub(theMethodCalled, withValue);
+            return this;
+        }
+
+        IInterceptorProxyBuilder IInterceptorProxyBuilder.InterceptBeforeExecutionOf(string theMethodNamed, Action<IBeforeExecutionResult> andCallBackWith)
+        {
+            InterceptBeforeExecutionOf(theMethodNamed, andCallBackWith);
+            return this;
+        }
+
+        IInterceptorProxyBuilder IInterceptorProxyBuilder.WithTaskAwaiter(Action<Task> taskWaiter)
+        {
+            WithTaskAwaiter(taskWaiter);
+            return this;
         }
     }
 }
