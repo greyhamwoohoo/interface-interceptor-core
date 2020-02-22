@@ -11,8 +11,11 @@
     <PackageProjectUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</RepositoryUrl>
     <PackageTags>Testing;Mocking;Capture;Replay</PackageTags>
-    <PackageReleaseNotes>1.1.2
-===
+    <PackageReleaseNotes>1.1.3
+- Stub and OnAfter include parameters and arguments for the method call
+- Improved internal code relating to stubbing void methods
+
+1.1.2
 - Support for multiple Before and multiple After callouts
 
 1.1.1

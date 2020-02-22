@@ -69,7 +69,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         /// <returns></returns>
         public IInterceptorProxyBuilder<T> InterceptAndStub(string theMethodCalled)
         {
-            StubExecutionRules.Add(new StubExecutionRule(theMethodCalled, null));
+            StubExecutionRules.Add(new StubExecutionRule(theMethodCalled));
             return this;
         }
 
@@ -82,6 +82,18 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         public IInterceptorProxyBuilder<T> InterceptAndStub(string theMethodCalled, object withValue)
         {
             StubExecutionRules.Add(new StubExecutionRule(theMethodCalled, withValue));
+            return this;
+        }
+
+        /// <summary>
+        /// Intercept a method and invoke a callback to return a value
+        /// </summary>
+        /// <param name="theMethodCalled">Method name to stub.</param>
+        /// <param name="dynamicValueProvider">The callback that will return the value. </param>
+        /// <returns></returns>
+        public IInterceptorProxyBuilder<T> InterceptAndStub(string theMethodCalled, Func<IMethodCallContext, object> dynamicValueProvider)
+        {
+            StubExecutionRules.Add(new StubExecutionRule(theMethodCalled, dynamicValueProvider));
             return this;
         }
 
@@ -138,6 +150,12 @@ namespace GreyhamWooHoo.Interceptor.Core.Builders
         IInterceptorProxyBuilder IInterceptorProxyBuilder.InterceptAndStub(string theMethodCalled, object withValue)
         {
             InterceptAndStub(theMethodCalled, withValue);
+            return this;
+        }
+
+        IInterceptorProxyBuilder IInterceptorProxyBuilder.InterceptAndStub(string theMethodCalled, Func<IMethodCallContext, object> dynamicValueProvider)
+        {
+            InterceptAndStub(theMethodCalled, dynamicValueProvider);
             return this;
         }
 

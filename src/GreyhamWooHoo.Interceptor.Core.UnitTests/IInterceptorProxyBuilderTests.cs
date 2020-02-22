@@ -140,6 +140,24 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
+        public void WhenIntIsDynamicallyProvided_ReturnsStubbedValue()
+        {
+            // Arrange
+            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsInt), dynamicValueProvider: callContext => 
+            {
+                return 123;
+            })
+            .Build() as IAfterExecutionTestInterface;
+
+            // Act
+            var result = proxy.MethodReturnsInt();
+
+            // Assert
+            result.Should().Be(123, because: "that is the stubbed value");
+            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+        }
+
+        [TestMethod]
         public void WhenTaskAwaiterIsProvided_TaskWaiterIsCalled()
         {
             // Arrange

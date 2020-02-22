@@ -3,7 +3,7 @@
     /// <summary>
     /// Passed to the callback after the method has been invoked but before the return value is passed to the caller.
     /// </summary>
-    public interface IAfterExecutionResult
+    public interface IAfterExecutionResult : IMethodCallContext
     {
         IAfterExecutionRule Rule { get; }
         bool HasReturnValue { get; }

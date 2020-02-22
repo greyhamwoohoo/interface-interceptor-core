@@ -66,7 +66,7 @@ namespace GreyhamWooHoo.Interceptor.Core
             {
                 try
                 {
-                    ar.Callback(new AfterExecutionResult(ar, invocationResult.HasReturnValue, invocationResult.ReturnValue));
+                    ar.Callback(new AfterExecutionResult(ar, invocationResult.HasReturnValue, invocationResult.ReturnValue, args, targetMethod.GetParameters()));
                 }
                 catch (Exception)
                 {
@@ -171,7 +171,19 @@ namespace GreyhamWooHoo.Interceptor.Core
             var result = default(object);
             if (stubbedRule != null)
             {
-                result = stubbedRule.Value;
+                if (stubbedRule.IsFixedValue) 
+                {
+                    result = stubbedRule.Value;
+                } 
+                else if(stubbedRule.IsDynamicValue)
+                {
+                    result = stubbedRule.DynamicValueProvider(new MethodCallContext(withArgs, forTargetMethod.GetParameters()));
+                }
+                else if(stubbedRule.IsVoid)
+                {
+                    // The stubbed method has no return value
+                    return null;
+                }
             }
             else
             {
@@ -188,7 +200,10 @@ namespace GreyhamWooHoo.Interceptor.Core
 
             _beforeExecutionRules = beforeExecutionRules.Select(i => new BeforeExecutionRule(i.MethodName, i.Callback));
             _afterExecutionRules = afterExecutionRules.Select(i => new AfterExecutionRule(i.MethodName, i.Callback));
-            _stubExecutionRules = stubExecutionRules.Select(i => new StubExecutionRule(i.MethodName, i.Value));
+
+            _stubExecutionRules = stubExecutionRules.Where(r => r.IsFixedValue).Select(i => new StubExecutionRule(i.MethodName, i.Value));
+            _stubExecutionRules = _stubExecutionRules.Union(stubExecutionRules.Where(r => r.IsDynamicValue).Select(i => new StubExecutionRule(i.MethodName, i.DynamicValueProvider)));
+            _stubExecutionRules = _stubExecutionRules.Union(stubExecutionRules.Where(r => r.IsVoid).Select(i => new StubExecutionRule(i.MethodName)));
         }
 
         public static T Create(T originalImplementation, IEnumerable<IBeforeExecutionRule> beforeExecutionRules, IEnumerable<IStubExecutionRule> stubExecutionRules, IEnumerable<IAfterExecutionRule> afterExecutionRules, Action<Task> taskWaiter)

@@ -14,6 +14,7 @@ namespace GreyhamWooHoo.Interceptor.Core.Contracts
         IInterceptorProxyBuilder InterceptAfterExecutionOf(string theMethodCalled, Action<IAfterExecutionResult> andCallbackWith);
         IInterceptorProxyBuilder InterceptAndStub(string theMethodCalled);
         IInterceptorProxyBuilder InterceptAndStub(string theMethodCalled, object withValue);
+        IInterceptorProxyBuilder InterceptAndStub(string theMethodCalled, Func<IMethodCallContext, object> dynamicValueProvider);
         IInterceptorProxyBuilder InterceptBeforeExecutionOf(string theMethodNamed, Action<IBeforeExecutionResult> andCallBackWith);
         IInterceptorProxyBuilder WithTaskAwaiter(Action<Task> taskWaiter);
     }

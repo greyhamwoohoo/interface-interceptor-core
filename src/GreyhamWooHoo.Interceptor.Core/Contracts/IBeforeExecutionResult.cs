@@ -2,11 +2,8 @@
 
 namespace GreyhamWooHoo.Interceptor.Core.Contracts
 {
-    public interface IBeforeExecutionResult
+    public interface IBeforeExecutionResult : IMethodCallContext
     {
         IBeforeExecutionRule Rule { get; }
-
-        object[] Args { get; }
-        IDictionary<string, object> Parameters { get; }
     }
 }
