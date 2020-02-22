@@ -14,7 +14,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
     public class AfterExecutionTaskTests : AfterTestBase
     {
         [TestMethod]
-        public void MethodReturnsTaskVoid()
+        public async Task MethodReturnsTaskVoid()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -26,26 +26,24 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsTaskVoid();
-
-            task.Wait();
+            await proxy.MethodReturnsTaskVoid();
 
             // Assert
             AssertReturnValueIsVoid(nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoid), inResult: store);
         }
 
         [TestMethod]
-        public void MethodReturnsTaskVoidNotIntercepted()
+        public async Task MethodReturnsTaskVoidNotIntercepted()
         {
             // Arrange, Act
-            _originalImplementation.MethodReturnsTaskVoid().Wait();
+            await _originalImplementation.MethodReturnsTaskVoid();
 
             // Assert
             _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoid)}", because: "the method should have fully completed without any callbacks. ");
         }
 
         [TestMethod]
-        public void MethodReturnsTaskIntResult()
+        public async Task MethodReturnsTaskIntResult()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -57,26 +55,24 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsTaskIntResult();
-
-            task.Wait();
+            await proxy.MethodReturnsTaskIntResult();
 
             // Assert
             AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsTaskIntResult), isValue: 25, inResult: store);
         }
 
         [TestMethod]
-        public void MethodReturnsTaskIntResultNotIntercepted()
+        public async Task MethodReturnsTaskIntResultNotIntercepted()
         {
             // Arrange, Act
-            _originalImplementation.MethodReturnsTaskIntResult().Wait();
+            await _originalImplementation.MethodReturnsTaskIntResult();
 
             // Assert
             _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskIntResult)}", because: "the method should have fully completed without any callbacks. ");
         }
 
         [TestMethod]
-        public void MethodReturnsGenericTaskInt()
+        public async Task MethodReturnsGenericTaskInt()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -88,29 +84,28 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsGenericTaskInt();
+            var result = await proxy.MethodReturnsGenericTaskInt();
 
             // Assert
-            task.Result.Should().Be(10, because: "the task should have completed by now. ");
+            result.Should().Be(10, because: "the task should have completed by now. ");
 
             AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt), isValue: 10, inResult: store);
         }
 
         [TestMethod]
-        public void MethodReturnsGenericTaskIntNotIntercepted()
+        public async Task MethodReturnsGenericTaskIntNotIntercepted()
         {
             // Arrange, Act
-            var task = _originalImplementation.MethodReturnsGenericTaskInt();
-            task.Wait();
+            var result = await _originalImplementation.MethodReturnsGenericTaskInt();
 
             // Assert
-            task.Result.Should().Be(10, because: "the task should have completed by now. ");
+            result.Should().Be(10, because: "the task should have completed by now. ");
             _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt)}", because: "the method should have fully completed without any callbacks. ");
         }
 
         [TestMethod]
         [ExpectedException(typeof(AggregateException))]
-        public void MethodReturnsTaskButThrowsException()
+        public async Task MethodReturnsTaskButThrowsException()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -122,7 +117,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsTaskButThrowsException();
+            await proxy.MethodReturnsTaskButThrowsException();
         }
 
         [TestMethod]
@@ -134,7 +129,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void MethodReturnsTaskVoidAsync()
+        public async Task MethodReturnsTaskVoidAsync()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -146,9 +141,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsTaskVoidAsync();
-
-            task.Wait();
+            await proxy.MethodReturnsTaskVoidAsync();
 
             // Assert
             AssertReturnValueIsVoid(nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync), inResult: store);
@@ -165,7 +158,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void MethodReturnsGenericTaskAsync()
+        public async Task MethodReturnsGenericTaskAsync()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -177,9 +170,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsGenericTaskAsync();
-
-            task.Wait();
+            await proxy.MethodReturnsGenericTaskAsync();
 
             AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskAsync), hasReturnValue: true, inResult: store);
             
