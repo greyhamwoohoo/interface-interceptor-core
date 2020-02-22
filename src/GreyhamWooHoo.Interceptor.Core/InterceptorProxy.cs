@@ -34,47 +34,53 @@ namespace GreyhamWooHoo.Interceptor.Core
 
             var result = ExecuteStubExecutionRules(forTargetMethod: targetMethod, withArgs: args);
 
-            var afterRule = _afterExecutionRules.FirstOrDefault(f => f.MethodName == name);
-            if (afterRule == null)
+            if (_afterExecutionRules.Count() == 0)
             {
                 return result;
             }
 
-            var callbackResult = default(IAfterExecutionResult);
+            var invocationResult = default(InvocationResult);
 
             if (result is Task task)
             {
-                callbackResult = WaitForResultOf(task, targetMethod, thatMatchedRule: afterRule);
+                invocationResult = WaitForResultOf(task, targetMethod);
             }
             else
             {
                 // We now callout with the original value: it is better the recipient serialize / deserialize this by casting to the expected type first. 
                 if (targetMethod.ReturnType == typeof(void))
                 {
-                    callbackResult = new AfterExecutionResult(afterRule);
+                    invocationResult = new InvocationResult();
                 }
                 else
                 {
-                    callbackResult = new AfterExecutionResult(afterRule, true, result);
+                    invocationResult = new InvocationResult()
+                    {
+                        HasReturnValue = true,
+                        ReturnValue = result
+                    };
                 }
             }
 
-            try
+            _afterExecutionRules.ToList().ForEach(ar =>
             {
-                afterRule.Callback(callbackResult);
-            }
-            catch(Exception)
-            {
-                // Design decision: if anything goes wrong in the callback, we do not want to change the result of invoking the method. Therefore, sink the exception. 
-            }
+                try
+                {
+                    ar.Callback(new AfterExecutionResult(ar, invocationResult.HasReturnValue, invocationResult.ReturnValue));
+                }
+                catch (Exception)
+                {
+                    // Design decision: if anything goes wrong in the callback, we do not want to change the result of invoking the method. Therefore, sink the exception. 
+                }
+            });
 
             return result;
         }
 
-        private IAfterExecutionResult WaitForResultOf(Task task, MethodInfo targetMethod, IAfterExecutionRule thatMatchedRule)
+        private InvocationResult WaitForResultOf(Task task, MethodInfo targetMethod)
         {
             var methodInterrogator = new MethodInterrogator();
-            var callbackResult = default(IAfterExecutionResult);
+            var invocationResult = default(InvocationResult);
 
             // Callback to wait for the task to finish. For some long running tasks, there is the chance a task would not complete before the test finishes... 
             _taskWaiter(task);
@@ -98,7 +104,11 @@ namespace GreyhamWooHoo.Interceptor.Core
                     taskResult = property.GetValue(task);
                 }
 
-                callbackResult = new AfterExecutionResult(thatMatchedRule, true, taskResult);
+                invocationResult = new InvocationResult()
+                {
+                    HasReturnValue = true,
+                    ReturnValue = taskResult
+                };
             }
             else
             {
@@ -112,30 +122,34 @@ namespace GreyhamWooHoo.Interceptor.Core
                     {
                         // SCENARIO:
                         // Async Task TheMethod() { return Task.Run(() => {  });
-                        callbackResult = new AfterExecutionResult(thatMatchedRule);
+                        invocationResult = new InvocationResult();
                     }
                     else
                     {
                         // SCENARIO:
                         // Task TheMethod() { return Task.Run(() => { return something; });
-                        callbackResult = new AfterExecutionResult(thatMatchedRule, true, taskResult);
+                        invocationResult = new InvocationResult()
+                        {
+                            HasReturnValue = true,
+                            ReturnValue = taskResult
+                        };
                     }
                 }
                 else
                 {
                     // SCENARIO:
                     // Task TheMethod() { return Task.Run(() => { returns nothing });
-                    callbackResult = new AfterExecutionResult(thatMatchedRule);
+                    invocationResult = new InvocationResult();
                 }
             }
 
-            return callbackResult;
+            return invocationResult;
         }
 
         private void ExecuteBeforeExecutionRules(MethodInfo forTargetMethod, object[] withArgs)
         {
-            var beforeRule = _beforeExecutionRules.FirstOrDefault(f => f.MethodName == forTargetMethod.Name);
-            if (beforeRule != null)
+            var beforeRules = _beforeExecutionRules.Where(f => f.MethodName == forTargetMethod.Name);
+            beforeRules.ToList().ForEach(beforeRule =>
             {
                 try
                 {
@@ -147,7 +161,7 @@ namespace GreyhamWooHoo.Interceptor.Core
                 {
                     // Design Decision: if something goes wrong in the callout, we sink it and continue execution. 
                 }
-            }
+            });
         }
 
         private object ExecuteStubExecutionRules(MethodInfo forTargetMethod, object[] withArgs)
@@ -190,6 +204,13 @@ namespace GreyhamWooHoo.Interceptor.Core
             ((InterceptorProxy<T>)proxy).SetParameters(originalImplementation, beforeExecutionRules, stubExecutionRules, afterExecutionRules, taskWaiter);
 
             return (T)proxy;
+        }
+
+        internal class InvocationResult
+        {
+
+            internal bool HasReturnValue { get; set; }
+            internal object ReturnValue { get; set; }
         }
     }
 }

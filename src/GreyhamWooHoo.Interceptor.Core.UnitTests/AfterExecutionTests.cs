@@ -66,5 +66,31 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             // Assert
             _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsInt)}", because: "the method should have fully completed without any callbacks. ");
         }
+
+        [TestMethod]
+        public void ManyAfterCallouts()
+        {
+            // Arrange
+            var callback1 = false;
+            var callback2 = false;
+
+            var proxy = _builder
+                .InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsInt), andCallbackWith: result =>
+                {
+                    callback1 = true;
+                })
+                .InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsInt), andCallbackWith: result =>
+                {
+                    callback2 = true;
+                })
+                .Build();
+
+            // Act
+            proxy.MethodReturnsInt();
+
+            // Assert
+            callback1.Should().BeTrue(because: "the first OnAfter callout will be invoked. ");
+            callback2.Should().BeTrue(because: "the second OnAfter callout will be invoked. ");
+        }
     }
 }
