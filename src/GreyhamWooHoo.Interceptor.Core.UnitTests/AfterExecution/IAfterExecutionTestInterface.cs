@@ -15,8 +15,8 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
         void MethodReturnsVoidAsync();
         Task MethodReturnsTaskVoidAsync();
         Task<IEnumerable<Product>> MethodReturnsGenericTaskAsync();
-        void MethodAsNoParameters();
-        void MethodHasOneParameter(int theInt);
-        void MethodHasTwoParameters(string theString, int theInt);
+        int MethodAsNoParameters();
+        int MethodHasOneParameter(int theInt);
+        int MethodHasTwoParameters(string theString, int theInt);
     }
 }
