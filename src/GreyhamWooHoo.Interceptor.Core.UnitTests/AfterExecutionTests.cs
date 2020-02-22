@@ -1,6 +1,4 @@
 using FluentAssertions;
-using FluentAssertions.Execution;
-using GreyhamWooHoo.Interceptor.Core.Builders;
 using GreyhamWooHoo.Interceptor.Core.Contracts;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,7 +10,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
     public class AfterExecutionTests : AfterTestBase
     {
         [TestMethod]
-        public void VoidMethod()
+        public void MethodIsVoid()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -31,7 +29,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void VoidMethodNotIntercepted()
+        public void MethodIsVoidNotIntercepted()
         {
             // Arrange, Act
             _originalImplementation.MethodReturnsVoid();
@@ -41,7 +39,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void IntMethod()
+        public void MethodReturnsInt()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -60,7 +58,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void IntMethodNotIntercepted()
+        public void MethodReturnsIntNotIntercepted()
         {
             // Arrange, Act
             _originalImplementation.MethodReturnsInt();

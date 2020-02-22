@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
 {
     [TestClass]
-    public class ReturnValueInterrogatorTests
+    public class MethodInterrogatorTests
     {
-        IReturnValueInterrogator returnValueInterrogator;
+        IMethodInterrogator returnValueInterrogator;
         ReturnValueTestClass cut;
 
         [TestInitialize]
         public void setupReturnValueInterrogatorTests()
         {
             cut = new ReturnValueTestClass();
-            returnValueInterrogator = new ReturnValueInterrogator();
+            returnValueInterrogator = new MethodInterrogator();
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
             var methodInfo = cut.GetType().GetMethod(methodName);
 
             // Act
-            var result = returnValueInterrogator.IsTask(methodInfo);
+            var result = returnValueInterrogator.ReturnsTask(methodInfo);
 
             // Assert
             result.Should().Be(isTask);
@@ -67,7 +67,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
-        public void MethodIsAsync(bool isTask, string methodName)
+        public void MethodIsAsync(bool isAsync, string methodName)
         {
             // Arrange
             var methodInfo = cut.GetType().GetMethod(methodName);
@@ -76,7 +76,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
             var result = returnValueInterrogator.IsAsync(methodInfo);
 
             // Assert
-            result.Should().Be(isTask);
+            result.Should().Be(isAsync);
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
         [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
-        public void MethodIsAwaitable(bool isTask, string methodName)
+        public void MethodIsAwaitable(bool isAwaitable, string methodName)
         {
             // Arrange
             var methodInfo = cut.GetType().GetMethod(methodName);
@@ -96,7 +96,27 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
             var result = returnValueInterrogator.IsAwaitable(methodInfo);
 
             // Assert
-            result.Should().Be(isTask);
+            result.Should().Be(isAwaitable);
+        }
+
+        [TestMethod]
+        [DataRow(false, nameof(ReturnValueTestClass.MethodIsVoid))]
+        [DataRow(false, nameof(ReturnValueTestClass.MethodReturnsInt))]
+        [DataRow(false, nameof(ReturnValueTestClass.MethodReturnsTask))]
+        [DataRow(true, nameof(ReturnValueTestClass.MethodReturnsTaskGenericInt))]
+        [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
+        [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
+        [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
+        public void MethodReturnsGenericTask(bool isGenericTask, string methodName)
+        {
+            // Arrange
+            var methodInfo = cut.GetType().GetMethod(methodName);
+
+            // Act
+            var result = returnValueInterrogator.ReturnsGenericTask(methodInfo);
+
+            // Assert
+            result.Should().Be(isGenericTask);
         }
     }
 

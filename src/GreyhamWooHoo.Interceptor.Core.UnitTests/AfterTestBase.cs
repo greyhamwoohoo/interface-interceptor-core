@@ -2,6 +2,7 @@
 using FluentAssertions.Execution;
 using GreyhamWooHoo.Interceptor.Core.Builders;
 using GreyhamWooHoo.Interceptor.Core.Contracts;
+using GreyhamWooHoo.Interceptor.Core.Contracts.Generic;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,7 +13,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
     {
         protected readonly AfterExecutionTestImplementation _originalImplementation = new AfterExecutionTestImplementation();
 
-        protected InterceptorProxyBuilder<IAfterExecutionTestInterface> _builder;
+        protected IInterceptorProxyBuilder<IAfterExecutionTestInterface> _builder;
 
         [TestInitialize]
         public void SetupReturnValueTests()

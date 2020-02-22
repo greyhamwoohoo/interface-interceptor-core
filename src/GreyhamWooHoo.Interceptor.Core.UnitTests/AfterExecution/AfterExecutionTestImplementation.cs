@@ -8,20 +8,20 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
     {
         public string Message { get; set; }
 
-        public async Task MethodReturnsAsyncVoidTask()
+        public async Task MethodReturnsTaskVoidAsync()
         {
             await Task.Run(() =>
             {
-                Message = $"Invoked: {nameof(MethodReturnsAsyncVoidTask)}";
+                Message = $"Invoked: {nameof(MethodReturnsTaskVoidAsync)}";
             });
         }
 
-        public async Task<IEnumerable<Product>> MethodReturnsAsyncGenericTask()
+        public async Task<IEnumerable<Product>> MethodReturnsGenericTaskAsync()
         {
             var products = await Task<IEnumerable<Product>>.Run(() =>
             {
-                Message = $"Invoked: {nameof(MethodReturnsAsyncGenericTask)}";
-                
+                Message = $"Invoked: {nameof(MethodReturnsGenericTaskAsync)}";
+
                 var result = new Product[2]
                 {
                     new Product()
@@ -42,7 +42,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
             return products;
         }
 
-        public Task MethodTaskThrowsException()
+        public Task MethodReturnsTaskButThrowsException()
         {
             return Task.Run(() =>
             {
@@ -56,12 +56,12 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
             return 10;
         }
 
-        public Task<int> MethodReturnsTaskInt()
+        public Task<int> MethodReturnsGenericTaskInt()
         {
             return Task.Run(() =>
             {
                 System.Threading.Thread.Sleep(250);
-                Message = $"Invoked: {nameof(MethodReturnsTaskInt)}";
+                Message = $"Invoked: {nameof(MethodReturnsGenericTaskInt)}";
                 return 10;
             });
         }
@@ -78,6 +78,22 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
         public void MethodReturnsVoid()
         {
             Message = $"Invoked: {nameof(MethodReturnsVoid)}";
+        }
+
+        public Task MethodReturnsTaskIntResult()
+        {
+            return Task.Run(() =>
+            {
+                Message = $"Invoked: {nameof(MethodReturnsTaskIntResult)}";
+                return 25;
+            });
+        }
+
+        public async void MethodReturnsVoidAsync()
+        {
+            await Task.Run(() => System.Threading.Thread.Sleep(1));
+
+            Message = $"Invoked: {nameof(MethodReturnsVoidAsync)}";
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GreyhamWooHoo.Interceptor.Core.UnitTests
+﻿namespace GreyhamWooHoo.Interceptor.Core.UnitTests
 {
     public class CustomTaskException : System.Exception
     {

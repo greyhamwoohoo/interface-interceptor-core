@@ -8,11 +8,12 @@ namespace GreyhamWooHoo.Interceptor.Core.Contracts
     /// <summary>
     /// Interrogates a 
     /// </summary>
-    public interface IReturnValueInterrogator
+    public interface IMethodInterrogator
     {
         bool IsVoid(MethodInfo methodInfo);
-        bool IsTask(MethodInfo methodInfo);
+        bool ReturnsTask(MethodInfo methodInfo);
         bool IsAsync(MethodInfo methodInfo);
         bool IsAwaitable(MethodInfo methodInfo);
+        bool ReturnsGenericTask(MethodInfo methodInfo);
     }
 }

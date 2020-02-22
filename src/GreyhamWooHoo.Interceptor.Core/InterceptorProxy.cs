@@ -1,11 +1,11 @@
 ﻿using GreyhamWooHoo.Interceptor.Core.Contracts;
+using GreyhamWooHoo.Interceptor.Core.Interrogators;
 using GreyhamWooHoo.Interceptor.Core.Results;
 using GreyhamWooHoo.Interceptor.Core.Rules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace GreyhamWooHoo.Interceptor.Core
@@ -44,7 +44,7 @@ namespace GreyhamWooHoo.Interceptor.Core
 
             if (result is Task task)
             {
-                callbackResult = WaitForResultOf(task, thatMatchedRule: afterRule);
+                callbackResult = WaitForResultOf(task, targetMethod, thatMatchedRule: afterRule);
             }
             else
             {
@@ -71,22 +71,23 @@ namespace GreyhamWooHoo.Interceptor.Core
             return result;
         }
 
-        private IAfterExecutionResult WaitForResultOf(Task task, IAfterExecutionRule thatMatchedRule)
+        private IAfterExecutionResult WaitForResultOf(Task task, MethodInfo targetMethod, IAfterExecutionRule thatMatchedRule)
         {
+            var methodInterrogator = new MethodInterrogator();
             var callbackResult = default(IAfterExecutionResult);
-            
-            // Callback to wait for the task to finish. For some long running tasks, there is the chance a task might not complete before the test finishes... and therefore, the results will not be attached...!
+
+            // Callback to wait for the task to finish. For some long running tasks, there is the chance a task would not complete before the test finishes... 
             _taskWaiter(task);
 
             object taskResult = null;
 
-            if (TaskIsGeneric(task) || TaskIsAsync(task))
+            if (methodInterrogator.ReturnsGenericTask(targetMethod))
             {
-                // ie:
-                // Task<int> TheMethod()
+                // SCENARIO:
+                // A method that returns a Generic Task will *ALWAYS* have a result. 
 
                 // ie:
-                // async Task TheMethod()
+                // Task<int> TheMethod()
                 // async Task<T> TheMethod()
 
                 // Reference:
@@ -101,39 +102,34 @@ namespace GreyhamWooHoo.Interceptor.Core
             }
             else
             {
-                // ie:
-                // Task TheMethod()
-                callbackResult = new AfterExecutionResult(thatMatchedRule);
+                var property = task.GetType().GetTypeInfo().GetProperties().FirstOrDefault(p => p.Name == "Result");
+                if(property != null)
+                {
+                    taskResult = property.GetValue(task);
+
+                    // Looks like the only way to test for a 'Void' Task. https://stackoverflow.com/questions/59080219/get-the-result-of-funcobject-when-object-is-a-tasksomething
+                    if (taskResult.GetType().FullName == "System.Threading.Tasks.VoidTaskResult")
+                    {
+                        // SCENARIO:
+                        // Async Task TheMethod() { return Task.Run(() => {  });
+                        callbackResult = new AfterExecutionResult(thatMatchedRule);
+                    }
+                    else
+                    {
+                        // SCENARIO:
+                        // Task TheMethod() { return Task.Run(() => { return something; });
+                        callbackResult = new AfterExecutionResult(thatMatchedRule, true, taskResult);
+                    }
+                }
+                else
+                {
+                    // SCENARIO:
+                    // Task TheMethod() { return Task.Run(() => { returns nothing });
+                    callbackResult = new AfterExecutionResult(thatMatchedRule);
+                }
             }
 
             return callbackResult;
-        }
-
-        /// <summary>
-        /// Determines if the Task is generic. ie: if it is specified something like this:
-        /// Task<int> TheMethod() ... 
-        /// Implicitly, the task has a Result property in this case. 
-        /// This method returns false if the method signature is like this:
-        /// async Task<int> TheMethod()
-        /// </summary>
-        /// <param name="task">The task</param>
-        /// <returns>true if the Task is generic; false otherwise. </returns>
-        private bool TaskIsGeneric(Task task)
-        {
-            return task.GetType().GetTypeInfo().IsGenericType && task.GetType().GetGenericTypeDefinition() == typeof(Task<>);
-        }
-
-        /// <summary>
-        /// Determines if the Task signature is async Task. ie:
-        /// async Task DoMethod() ... 
-        /// async Task<int> DoMethod() ...
-        /// NOTE: TODO: I dont fully understand this... need to dig deeper :)
-        /// </summary>
-        /// <param name="task">The task</param>
-        /// <returns>True if this is an async method (including void); false otherwise. </returns>
-        private bool TaskIsAsync(Task task)
-        {
-            return task.GetType().GetTypeInfo().IsGenericType && task.GetType().GetProperties().FirstOrDefault(p => p.Name == "Result") != null;
         }
 
         private void ExecuteBeforeExecutionRules(MethodInfo forTargetMethod, object[] withArgs)
