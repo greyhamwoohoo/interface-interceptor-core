@@ -8,7 +8,34 @@ Ideal for testing (particularly: in-process component testing). Using this packa
 
 Optionally provide callbacks OnBefore, OnAfter or Stub the entire execution of the interface method. 
 
-For example: if you have an Interface called ITheInterface with a method called DoSomething() that returns an int value, the following will provide a callback to capture the return value after the concrete implementation has been invoked:
+### Example: OnBeforeExecution
+Be called back before a method is invoked. Multiple handlers can be provided. 
+
+If you have an Interface called ITheInterface with a method called DoSomething(int woo, string hoo), you can capture the values passed to the method with this code:
+
+```csharp
+    var args = default(object[]);
+    var parameters = default(IDictionary<string, object>);
+
+    var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(ITheInterface.DoSomething), andCallBackWith: result =>
+    {
+        args = result.Args;
+        parameters = result.Parameters;
+    })
+    .Build();
+
+    // Act
+    proxy.MethodWithTwoParameters(woo: 10, hoo: "yeha");
+
+    // Assert
+    parameters["woo"].Should().Be(10);
+    parameters["hoo"].Should().Be("yeha");
+```
+
+### Example: OnAfterExecution
+Be called back after a method has been invoked. Multiple handlers can be provided. 
+
+If you have an Interface called ITheInterface with a method called DoSomething() that returns an int value, the following will provide a callback to capture the return value after the concrete implementation has been invoked:
 
 ```csharp
 private readonly TheInterfaceImplementation _originalImplementation = new TheInterfaceImplementation();
@@ -26,6 +53,7 @@ var _interceptedInterface = new InterceptorProxyBuilder<ITheInterface>()
 // Invoke the interface: the original implementation will be called and then the above handler invoked. 
 var result = _interceptedInterface.DoSomething();
  ```
+
  See the .UnitTests project for how to configure OnBefore, OnAfter and Stub Executions in place of the original method. 
 
 ## Limitations

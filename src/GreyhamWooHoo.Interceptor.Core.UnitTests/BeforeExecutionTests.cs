@@ -120,5 +120,31 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
 
             _originalImplementation.Message.Should().Be("Invoked: 20 30", because: "it is set by the method after the calledback. ");
         }
+
+        [TestMethod]
+        public void ManyBeforeCallouts()
+        {
+            // Arrange
+            var callback1 = false;
+            var callback2 = false;
+
+            var proxy = _builder
+                .InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithNoParameters), andCallBackWith: result =>
+                {
+                    callback1 = true;
+                })
+                .InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithNoParameters), andCallBackWith: result =>
+                {
+                    callback2 = true;
+                })
+                .Build();
+
+            // Act
+            proxy.MethodWithNoParameters();
+            
+            // Assert
+            callback1.Should().BeTrue(because: "the first OnBefore callout will be invoked. ");
+            callback2.Should().BeTrue(because: "the second OnBefore callout will be invoked. ");
+        }
     }
 }

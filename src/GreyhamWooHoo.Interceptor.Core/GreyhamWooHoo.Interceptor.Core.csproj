@@ -11,9 +11,11 @@
     <PackageProjectUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</RepositoryUrl>
     <PackageTags>Testing;Mocking;Capture;Replay</PackageTags>
-    <PackageReleaseNotes>
+    <PackageReleaseNotes>1.1.2
+===
+- Support for multiple Before and multiple After callouts
+
 1.1.1
-=====
 - Adding support for method / return value interrogators
 - Consolidated the async, Void and Task implementations (wrong assumptions/knowledge gap on my part)
 - Tests consolidated / renamed
