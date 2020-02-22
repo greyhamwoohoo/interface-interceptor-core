@@ -66,7 +66,7 @@ namespace GreyhamWooHoo.Interceptor.Core
             {
                 try
                 {
-                    ar.Callback(new AfterExecutionResult(ar, invocationResult.HasReturnValue, invocationResult.ReturnValue));
+                    ar.Callback(new AfterExecutionResult(ar, invocationResult.HasReturnValue, invocationResult.ReturnValue, args, targetMethod.GetParameters()));
                 }
                 catch (Exception)
                 {

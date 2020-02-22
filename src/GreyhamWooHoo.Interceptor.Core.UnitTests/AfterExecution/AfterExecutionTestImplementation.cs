@@ -95,5 +95,17 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
 
             Message = $"Invoked: {nameof(MethodReturnsVoidAsync)}";
         }
+
+        public void MethodAsNoParameters()
+        {
+        }
+
+        public void MethodHasOneParameter(int param1)
+        {
+        }
+
+        public void MethodHasTwoParameters(string param1, int param2)
+        {
+        }
     }
 }
