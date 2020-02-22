@@ -11,7 +11,17 @@
     <PackageProjectUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/greyhamwoohoo/interface-interceptor-core</RepositoryUrl>
     <PackageTags>Testing;Mocking;Capture;Replay</PackageTags>
-    <PackageReleaseNotes>1.0.9:
+    <PackageReleaseNotes>
+1.1.1
+=====
+- Adding support for method / return value interrogators
+- Consolidated the async, Void and Task implementations (wrong assumptions/knowledge gap on my part)
+- Tests consolidated / renamed
+- Breaking Changes:
+1. Prior implementation: non-generic Tasks were always assumed to be void (HasReturnValue=false on callout)
+2. 1.1.1 Implementation: non-generic Tasks will interpret the .Result and callout with the correct result
+
+1.0.9:
 - Adding async void methods, extra tests
 - Includes generic and non-generic builder interfaces (backwards compatible)
 

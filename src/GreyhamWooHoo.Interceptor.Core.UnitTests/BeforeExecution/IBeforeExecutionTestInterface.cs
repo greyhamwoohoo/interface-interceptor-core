@@ -2,8 +2,8 @@
 {
     public interface IBeforeExecutionTestInterface
     {
-        void TheMethodWithNoParameters();
-        void TheMethodWithOneParameter(int parameter1);
-        void TheMethodWithManyParameters(int parameter1, int parameter2);
+        void MethodWithNoParameters();
+        void MethodWithOneParameter(int parameter1);
+        void MethodWithTwoParameters(int parameter1, int parameter2);
     }
 }

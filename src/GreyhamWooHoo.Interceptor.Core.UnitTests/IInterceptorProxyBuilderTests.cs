@@ -94,7 +94,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             var parameters = default(IDictionary<string, object>);
             var calledBack = false;
 
-            var proxy = builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.TheMethodWithOneParameter), andCallBackWith: result =>
+            var proxy = builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithOneParameter), andCallBackWith: result =>
             {
                 calledBack = true;
                 args = result.Args;
@@ -103,7 +103,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build() as IBeforeExecutionTestInterface;
 
             // Act
-            proxy.TheMethodWithOneParameter(10);
+            proxy.MethodWithOneParameter(10);
 
             // Assert
             calledBack.Should().BeTrue(because: "the callback should have been invoked. ");
@@ -145,7 +145,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             // Arrange
             var taskWaiterCalled = false;
 
-            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask), andCallbackWith: result =>
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync), andCallbackWith: result =>
             {
             })
             .WithTaskAwaiter(task =>
@@ -156,7 +156,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build() as IAfterExecutionTestInterface;
 
             // Act
-            var task = proxy.MethodReturnsAsyncVoidTask();
+            var task = proxy.MethodReturnsTaskVoidAsync();
 
             taskWaiterCalled.Should().BeTrue(because: "we provided our custom task waiter. ");
         }

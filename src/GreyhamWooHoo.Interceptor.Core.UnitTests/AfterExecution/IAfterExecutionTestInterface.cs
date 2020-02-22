@@ -9,10 +9,11 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue
         void MethodReturnsVoid();
         int MethodReturnsInt();
         Task MethodReturnsTaskVoid();
-        Task<int> MethodReturnsTaskInt();
-        Task MethodTaskThrowsException();
-        Task MethodReturnsAsyncVoidTask();
-        Task<IEnumerable<Product>> MethodReturnsAsyncGenericTask();
-        void MethodIsAsyncAndReturnsVoid();
+        Task MethodReturnsTaskIntResult();
+        Task<int> MethodReturnsGenericTaskInt();
+        Task MethodReturnsTaskButThrowsException();
+        void MethodReturnsVoidAsync();
+        Task MethodReturnsTaskVoidAsync();
+        Task<IEnumerable<Product>> MethodReturnsGenericTaskAsync();
     }
 }

@@ -14,7 +14,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
     public class AfterExecutionTaskTests : AfterTestBase
     {
         [TestMethod]
-        public void VoidTaskMethod()
+        public void MethodReturnsTaskVoid()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
@@ -35,7 +35,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void VoidTaskMethodNotIntercepted()
+        public void MethodReturnsTaskVoidNotIntercepted()
         {
             // Arrange, Act
             _originalImplementation.MethodReturnsTaskVoid().Wait();
@@ -45,115 +45,143 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void IntTaskMethod()
+        public void MethodReturnsTaskIntResult()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
 
-            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskInt), andCallbackWith: result =>
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskIntResult), andCallbackWith: result =>
             {
                 store = result;
             })
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsTaskInt();
+            var task = proxy.MethodReturnsTaskIntResult();
+
+            task.Wait();
+
+            // Assert
+            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsTaskIntResult), isValue: 25, inResult: store);
+        }
+
+        [TestMethod]
+        public void MethodReturnsTaskIntResultNotIntercepted()
+        {
+            // Arrange, Act
+            _originalImplementation.MethodReturnsTaskIntResult().Wait();
+
+            // Assert
+            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskIntResult)}", because: "the method should have fully completed without any callbacks. ");
+        }
+
+        [TestMethod]
+        public void MethodReturnsGenericTaskInt()
+        {
+            // Arrange
+            var store = default(IAfterExecutionResult);
+
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt), andCallbackWith: result =>
+            {
+                store = result;
+            })
+            .Build();
+
+            // Act
+            var task = proxy.MethodReturnsGenericTaskInt();
 
             // Assert
             task.Result.Should().Be(10, because: "the task should have completed by now. ");
 
-            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsTaskInt), isValue: 10, inResult: store);
+            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt), isValue: 10, inResult: store);
         }
 
         [TestMethod]
-        public void IntTaskMethodNotIntercepted()
+        public void MethodReturnsGenericTaskIntNotIntercepted()
         {
             // Arrange, Act
-            var task = _originalImplementation.MethodReturnsTaskInt();
+            var task = _originalImplementation.MethodReturnsGenericTaskInt();
             task.Wait();
 
             // Assert
             task.Result.Should().Be(10, because: "the task should have completed by now. ");
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskInt)}", because: "the method should have fully completed without any callbacks. ");
+            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt)}", because: "the method should have fully completed without any callbacks. ");
         }
 
         [TestMethod]
         [ExpectedException(typeof(AggregateException))]
-        public void TaskMethodThrowsException()
+        public void MethodReturnsTaskButThrowsException()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
 
-            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodTaskThrowsException), andCallbackWith: result =>
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskButThrowsException), andCallbackWith: result =>
             {
                 store = result;
             })
             .Build();
 
             // Act
-            var task = proxy.MethodTaskThrowsException();
+            var task = proxy.MethodReturnsTaskButThrowsException();
         }
 
         [TestMethod]
         [ExpectedException(typeof(AggregateException))]
-        public void TaskMethodThrowsExceptionNotIntercepted()
+        public void MethodReturnsTaskButThrowsExceptionNotIntercepted()
         {
             // Arrange, Act, Assert
-            _originalImplementation.MethodTaskThrowsException().Wait();
+            _originalImplementation.MethodReturnsTaskButThrowsException().Wait();
         }
 
         [TestMethod]
-        public void AsyncVoidTaskMethod()
+        public void MethodReturnsTaskVoidAsync()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
 
-            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask), andCallbackWith: result =>
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync), andCallbackWith: result =>
             {
                 store = result;
             })
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsAsyncVoidTask();
+            var task = proxy.MethodReturnsTaskVoidAsync();
 
             task.Wait();
 
             // Assert
-            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask), true, inResult: store);
-
-            // Design Decision: store.ReturnValue is undefined but not null in the case of a method signature like 'async Task TheMethod()'
-            store.ReturnValue.Should().NotBeNull(because: "this is a design decision - until I work out how to distinguish async Task DoMethod() and Task DoMethod()");
+            AssertReturnValueIsVoid(nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync), inResult: store);
         }
 
         [TestMethod]
-        public async Task AsyncVoidTaskMethodNotIntercepted()
+        public async Task MethodReturnsTaskVoidAsyncNotIntercepted()
         {
             // Arrange, Act
-            await _originalImplementation.MethodReturnsAsyncVoidTask();
+            await _originalImplementation.MethodReturnsTaskVoidAsync();
 
             // Assert
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask)}", because: "the method should have fully completed without any callbacks. ");
+            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync)}", because: "the method should have fully completed without any callbacks. ");
         }
 
         [TestMethod]
-        public void AsyncGenericTaskMethod()
+        public void MethodReturnsGenericTaskAsync()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
 
-            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncGenericTask), andCallbackWith: result =>
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskAsync), andCallbackWith: result =>
             {
                 store = result;
             })
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsAsyncGenericTask();
+            var task = proxy.MethodReturnsGenericTaskAsync();
 
             task.Wait();
 
-            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsAsyncGenericTask), hasReturnValue: true, inResult: store);
+            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskAsync), hasReturnValue: true, inResult: store);
             
             var result = store.ReturnValue as IEnumerable<Product>;
             result.Should().NotBeNull(because: "the async method returns the enumerable collection. ");
@@ -166,23 +194,23 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void AsyncVoidMethod()
+        public void MethodReturnsVoidAsync()
         {
             // Arrange
             var store = default(IAfterExecutionResult);
 
-            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodIsAsyncAndReturnsVoid), andCallbackWith: result =>
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsVoidAsync), andCallbackWith: result =>
             {
                 store = result;
             })
             .Build();
 
             // Act
-            proxy.MethodIsAsyncAndReturnsVoid();
+            proxy.MethodReturnsVoidAsync();
             System.Threading.Thread.Sleep(20);
 
             // Assert
-            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodIsAsyncAndReturnsVoid), false, inResult: store);
+            AssertReturnValue(nameof(IAfterExecutionTestInterface.MethodReturnsVoidAsync), false, inResult: store);
         }
 
         [TestMethod]
@@ -191,7 +219,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             // Arrange
             var taskWaiterCalled = false;
 
-            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask), andCallbackWith: result =>
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync), andCallbackWith: result =>
             {
             })
             .WithTaskAwaiter(task =>
@@ -202,7 +230,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            var task = proxy.MethodReturnsAsyncVoidTask();
+            var task = proxy.MethodReturnsTaskVoidAsync();
 
             taskWaiterCalled.Should().BeTrue(because: "we provided our custom task waiter. ");
         }

@@ -23,14 +23,14 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void MethodHasNoParameters()
+        public void MethodWithNoParameters()
         {
             // Arrange
             var args = default(object[]);
             var parameters = default(IDictionary<string, object>);
             var calledBack = false;
 
-            var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.TheMethodWithNoParameters), andCallBackWith: result =>
+            var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithNoParameters), andCallBackWith: result =>
             {
                 calledBack = true;
                 args = result.Args;
@@ -39,7 +39,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            proxy.TheMethodWithNoParameters();
+            proxy.MethodWithNoParameters();
 
             // Assert
             using var scope = new AssertionScope();
@@ -54,14 +54,14 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void MethodHasOneParameter()
+        public void MethodWithOneParameter()
         {
             // Arrange
             var args = default(object[]);
             var parameters = default(IDictionary<string, object>);
             var calledBack = false;
 
-            var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.TheMethodWithOneParameter), andCallBackWith: result =>
+            var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithOneParameter), andCallBackWith: result =>
             {
                 calledBack = true;
                 args = result.Args;
@@ -70,7 +70,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            proxy.TheMethodWithOneParameter(10);
+            proxy.MethodWithOneParameter(10);
 
             // Assert
             using var scope = new AssertionScope();
@@ -87,14 +87,14 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void MethodHasManyParameters()
+        public void MethodWithTwoParameters()
         {
             // Arrange
             var args = default(object[]);
             var parameters = default(IDictionary<string, object>);
             var calledBack = false;
 
-            var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.TheMethodWithManyParameters), andCallBackWith: result =>
+            var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithTwoParameters), andCallBackWith: result =>
             {
                 calledBack = true;
                 args = result.Args;
@@ -103,7 +103,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             .Build();
 
             // Act
-            proxy.TheMethodWithManyParameters(20, 30);
+            proxy.MethodWithTwoParameters(20, 30);
 
             // Assert
             using var scope = new AssertionScope();

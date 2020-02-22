@@ -13,7 +13,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
     public class StubExecutionTests : AfterTestBase
     {
         [TestMethod]
-        public void VoidMethod()
+        public void MethodIsVoid()
         {
             // Arrange
             var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsVoid))
@@ -27,7 +27,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void VoidMethodNotIntercepted()
+        public void MethodIsVoidNotIntercepted()
         {
             // Arrange, Act
             _originalImplementation.MethodReturnsVoid();
@@ -37,7 +37,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void IntMethod()
+        public void MethodReturnsInt()
         {
             // Arrange
             var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsInt), withValue: 15)
@@ -52,7 +52,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void IntMethodNotIntercepted()
+        public void MethodReturnsIntNotIntercepted()
         {
             // Arrange, Act
             _originalImplementation.MethodReturnsInt();
@@ -62,7 +62,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void VoidTask()
+        public void MethodReturnsTaskVoid()
         {
             // Arrange
             var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoid), Task.CompletedTask)
@@ -77,7 +77,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void VoidTaskNotIntercepted()
+        public void MethodReturnsTaskVoidNotIntercepted()
         {
             // Arrange, Act
             _originalImplementation.MethodReturnsTaskVoid().Wait();
@@ -87,14 +87,14 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void IntTask()
+        public void MethodReturnsGenericTaskInt()
         {
             // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskInt), withValue: Task.FromResult(17))
+            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt), withValue: Task.FromResult(17))
                 .Build();
 
             // Act
-            var task = proxy.MethodReturnsTaskInt();
+            var task = proxy.MethodReturnsGenericTaskInt();
 
             // Assert
             task.Result.Should().Be(17, because: "the method was stubbed with the value 17. ");
@@ -103,26 +103,26 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void IntTaskNotIntercepted()
+        public void MethodReturnsGenerictaskIntNotIntercepted()
         {
             // Arrange, Act
-            var task = _originalImplementation.MethodReturnsTaskInt();
+            var task = _originalImplementation.MethodReturnsGenericTaskInt();
             task.Wait();
 
             // Assert
             task.Result.Should().Be(10, because: "the task should have completed by now. ");
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskInt)}", because: "the method should have fully completed without any callbacks. ");
+            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt)}", because: "the method should have fully completed without any callbacks. ");
         }
 
         [TestMethod]
-        public void TaskMethodThrowsException()
+        public void MethodReturnsTaskButThrowsException()
         {
             // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodTaskThrowsException), Task.CompletedTask)
+            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskButThrowsException), Task.CompletedTask)
                 .Build();
 
             // Act
-            var task = proxy.MethodTaskThrowsException();
+            var task = proxy.MethodReturnsTaskButThrowsException();
 
             // Assert
             task.Should().NotBeNull(because: "the exception was not thrown because we were stubbed. ");
@@ -130,22 +130,21 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
 
         [TestMethod]
         [ExpectedException(typeof(AggregateException))]
-        public void TaskMethodThrowsExceptionNotIntercepted()
+        public void MethodReturnsTaskButThrowsExceptionNotIntercepted()
         {
             // Arrange, Act, Assert
-            _originalImplementation.MethodTaskThrowsException().Wait();
+            _originalImplementation.MethodReturnsTaskButThrowsException().Wait();
         }
 
-
         [TestMethod]
-        public void AsyncVoidTaskMethod()
+        public void MethodReturnsTaskVoidAsync()
         {
             // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask), withValue: Task.CompletedTask)
+            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync), withValue: Task.CompletedTask)
                 .Build();
 
             // Act
-            var task = proxy.MethodReturnsAsyncVoidTask();
+            var task = proxy.MethodReturnsTaskVoidAsync();
             task.Wait();
 
             // Assert
@@ -153,20 +152,20 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public async Task AsyncVoidTaskMethodIsNotIntercepted()
+        public async Task MethodReturnsTaskVoidAsyncNotIntercepted()
         {
             // Arrange, Act
-            await _originalImplementation.MethodReturnsAsyncVoidTask();
+            await _originalImplementation.MethodReturnsTaskVoidAsync();
 
             // Assert
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsAsyncVoidTask)}", because: "the method should have fully completed without any callbacks. ");
+            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync)}", because: "the method should have fully completed without any callbacks. ");
         }
 
         [TestMethod]
-        public void VoidAsyncTaskGenericMethod()
+        public void MethodReturnsGenericTaskAsync()
         {
             // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsAsyncGenericTask), withValue: Task.FromResult(new Product[1] { 
+            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskAsync), withValue: Task.FromResult(new Product[1] { 
                 new Product()
                 {
                     Name = "MockedName1",
@@ -176,7 +175,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
            .Build();
 
             // Act
-            var task = proxy.MethodReturnsAsyncGenericTask();
+            var task = proxy.MethodReturnsGenericTaskAsync();
             task.Wait();
 
             // Assert
@@ -191,15 +190,15 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public async Task VoidAsyncTaskGenericMethodNotIntercepted()
+        public async Task MethodReturnsGenericTaskNotInterceptedAsync()
         {
             // Arrange, Act
-            var result = await _originalImplementation.MethodReturnsAsyncGenericTask();
+            var result = await _originalImplementation.MethodReturnsGenericTaskAsync();
 
             // Assert
             result.Count().Should().Be(2, because: "that is how many products are returned in the real method. ");
 
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsAsyncGenericTask)}", because: "the method should have fully completed without any callbacks. ");
+            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskAsync)}", because: "the method should have fully completed without any callbacks. ");
         }
     }
 }
