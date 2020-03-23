@@ -164,5 +164,30 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             var theStringParameter = (string)store.Parameters["theString"];
             theStringParameter.Should().Be("woo", because: "that is the value passed in. ");
         }
+
+        [TestMethod]
+        public void WhenInterfaceHasTwoCallbacks_MethodIsCalledOnlyOnce()
+        {
+            // Arrange
+            var methodAsNoParametersCount = 0;
+            var methodHasOneParametercount = 0;
+
+            var proxy = _builder.InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodAsNoParameters), andCallbackWith: result =>
+            {
+                methodAsNoParametersCount++;
+            })
+            .InterceptAfterExecutionOf(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodHasOneParameter), andCallbackWith: result =>
+            {
+                methodHasOneParametercount++;
+            }).Build();
+
+            // Act 1
+            proxy.MethodAsNoParameters();
+
+            // Assert 1
+            methodAsNoParametersCount.Should().Be(1, because: "this was the method that was explicitly invoked. ");
+            methodHasOneParametercount.Should().Be(0, because: "this method was not invoked. ");
+
+        }
     }
 }

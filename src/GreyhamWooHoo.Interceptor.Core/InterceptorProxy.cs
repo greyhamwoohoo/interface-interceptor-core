@@ -62,7 +62,8 @@ namespace GreyhamWooHoo.Interceptor.Core
                 }
             }
 
-            _afterExecutionRules.ToList().ForEach(ar =>
+            var afterExecutionRules = _afterExecutionRules.Where(f => f.MethodName == targetMethod.Name);
+            afterExecutionRules.ToList().ForEach(ar =>
             {
                 try
                 {
