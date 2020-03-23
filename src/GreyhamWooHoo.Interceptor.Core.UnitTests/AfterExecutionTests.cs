@@ -188,6 +188,11 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             methodAsNoParametersCount.Should().Be(1, because: "this was the method that was explicitly invoked. ");
             methodHasOneParametercount.Should().Be(0, because: "this method was not invoked. ");
 
+            // Act 2
+            proxy.MethodHasOneParameter(10);
+
+            methodHasOneParametercount.Should().Be(1, because: "this method was not invoked this time. ");
+            methodHasOneParametercount.Should().Be(1, because: "this method was invoke this time. ");
         }
     }
 }
