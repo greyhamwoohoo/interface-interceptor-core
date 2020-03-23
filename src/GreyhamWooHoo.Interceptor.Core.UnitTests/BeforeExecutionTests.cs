@@ -146,5 +146,35 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             callback1.Should().BeTrue(because: "the first OnBefore callout will be invoked. ");
             callback2.Should().BeTrue(because: "the second OnBefore callout will be invoked. ");
         }
+
+        [TestMethod]
+        public void WhenInterfaceHasTwoCallbacks_MethodIsCalledOnlyOnce()
+        {
+            // Arrange
+            var methodWithNoParameters = 0;
+            var methodWithOneParameter = 0;
+
+            var proxy = _builder.InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithNoParameters), andCallBackWith: result =>
+            {
+                methodWithNoParameters++;
+            })
+            .InterceptBeforeExecutionOf(theMethodNamed: nameof(IBeforeExecutionTestInterface.MethodWithOneParameter), andCallBackWith: result =>
+            {
+                methodWithOneParameter++;
+            }).Build();
+
+            // Act 1
+            proxy.MethodWithNoParameters();
+
+            // Assert 1
+            methodWithNoParameters.Should().Be(1, because: "this was the method that was explicitly invoked. ");
+            methodWithOneParameter.Should().Be(0, because: "this method was not invoked. ");
+
+            // Act 2
+            proxy.MethodWithOneParameter(10);
+
+            methodWithNoParameters.Should().Be(1, because: "this method was not invoked this time. ");
+            methodWithOneParameter.Should().Be(1, because: "this method was invoke this time. ");
+        }
     }
 }
