@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
 using GreyhamWooHoo.Interceptor.Core.Builders;
 using GreyhamWooHoo.Interceptor.Core.Contracts.Generic;
-using GreyhamWooHoo.Interceptor.Core.UnitTests.LifecycleExecution;
+using GreyhamWooHoo.Interceptor.Core.UnitTests.ServicesToIntercept;
+using GreyhamWooHoo.Interceptor.Core.UnitTests.ServicesToIntercept.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GreyhamWooHoo.Interceptor.Core.UnitTests
@@ -10,38 +11,38 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
     /// A single method can have an OnBefore, Stub, and OnAfter handler. 
     /// </summary>
     [TestClass]
-    public class LifecycleExecutionTests
+    public class BeforeStubAfterTests
     {
-        private readonly LifecycleExecutionTestImplementation _originalImplementation = new LifecycleExecutionTestImplementation();
+        private readonly BeforeStubAfterMethodSignatures _originalImplementation = new BeforeStubAfterMethodSignatures();
 
-        private IInterceptorProxyBuilder<ILifecycleExecutionTestInterface> _builder;
+        private IInterceptorProxyBuilder<IBeforeStubAfterMethodSignatures> _builder;
 
         [TestInitialize]
         public void SetupReturnValueTests()
         {
-            _builder = new InterceptorProxyBuilder<ILifecycleExecutionTestInterface>()
+            _builder = new InterceptorProxyBuilder<IBeforeStubAfterMethodSignatures>()
                 .For(_originalImplementation);
         }
 
         [TestMethod]
-        public void EchoSanity()
+        public void Assumptions()
         {
             _originalImplementation.Echo(12).Should().Be(12, because: "the method echos what is put in. ");
             _originalImplementation.Echo(22).Should().Be(22, because: "the method echos what is put in. ");
         }
 
         [TestMethod]
-        public void All()
+        public void Can_Provide_Before_Stub_And_After_Interceptions()
         {
             var beforeResult = 0;
             var afterResult = 0;
 
-            var iut = _builder.InterceptBeforeExecutionOf(nameof(ILifecycleExecutionTestInterface.Echo), andCallBackWith: result =>
+            var iut = _builder.InterceptBeforeExecutionOf(nameof(IBeforeStubAfterMethodSignatures.Echo), andCallBackWith: result =>
             {
                 beforeResult = (int)result.Parameters["value"];
             })
-            .InterceptAndStub(nameof(ILifecycleExecutionTestInterface.Echo), withValue: 27)
-            .InterceptAfterExecutionOf(nameof(ILifecycleExecutionTestInterface.Echo), andCallbackWith: result =>
+            .InterceptAndStub(nameof(IBeforeStubAfterMethodSignatures.Echo), withValue: 27)
+            .InterceptAfterExecutionOf(nameof(IBeforeStubAfterMethodSignatures.Echo), andCallbackWith: result =>
             {
                 afterResult = (int) result.ReturnValue;
             })

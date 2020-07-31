@@ -1,7 +1,7 @@
 using FluentAssertions;
 using GreyhamWooHoo.Interceptor.Core.Contracts;
 using GreyhamWooHoo.Interceptor.Core.UnitTests.Models;
-using GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue;
+using GreyhamWooHoo.Interceptor.Core.UnitTests.ServicesToIntercept.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -10,288 +10,320 @@ using System.Threading.Tasks;
 
 namespace GreyhamWooHoo.Interceptor.Core.UnitTests
 {
+
     [TestClass]
-    public class StubExecutionTests : AfterTestBase
+    public class StubExecutionTests
     {
-        [TestMethod]
-        public void MethodIsVoid()
+        [TestClass]
+        public class Interceptor_Can_Stub : AfterExecutionOfTestBase
         {
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsVoid))
+            [TestMethod]
+            public void When_Method_Is_Void()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.IsVoid))
+                    .Build();
+
+                // Act
+                proxy.IsVoid();
+
+                // Assert
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+            }
+
+
+            [TestMethod]
+            public void When_Method_Has_No_Parameters_Can_Stub_With_Dynamic_Value()
+            {
+                IMethodCallContext context = default;
+
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.HasNoParameters), dynamicValueProvider: callContext =>
+                {
+                    context = callContext;
+                    return 25;
+                })
+                    .Build();
+
+                // Act
+                var result = proxy.HasNoParameters();
+
+                // Assert
+                result.Should().Be(25, because: "that is the stubbed value");
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+
+                context.Args.Length.Should().Be(0, because: "this method has no parameters. ");
+                context.Parameters.Count.Should().Be(0, because: "this method has no parameters. ");
+            }
+
+            [TestMethod]
+            public void When_Method_Has_One_Parameters_Can_Stub_With_Dynamic_Value()
+            {
+                IMethodCallContext context = default;
+
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.HasOneParameter), dynamicValueProvider: callContext =>
+                {
+                    context = callContext;
+                    return 35;
+                })
+                    .Build();
+
+                // Act
+                var result = proxy.HasOneParameter(65);
+
+                // Assert
+                result.Should().Be(35, because: "that is the stubbed value");
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+
+                context.Args.Length.Should().Be(1, because: "this method has one parameter. ");
+                ((int)context.Args[0]).Should().Be(65, because: "that is the value passed in. ");
+
+                context.Parameters.Count.Should().Be(1, because: "this method has one parameter. ");
+                ((int)context.Parameters["theInt"]).Should().Be(65, because: "this method has one parameter. ");
+            }
+
+            [TestMethod]
+            public void When_Method_Has_Two_Parameters_Can_Stub_With_Dynamic_Value()
+            {
+                IMethodCallContext context = default;
+
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.HasTwoParameters), dynamicValueProvider: callContext =>
+                {
+                    context = callContext;
+                    return 14;
+                })
                 .Build();
 
-            // Act
-            proxy.MethodReturnsVoid();
+                // Act
+                var result = proxy.HasTwoParameters(theString: "theS", theInt: 98);
 
-            // Assert
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-        }
+                // Assert
+                result.Should().Be(14, because: "that is the stubbed value");
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
 
-        [TestMethod]
-        public void MethodIsVoidNotIntercepted()
-        {
-            // Arrange, Act
-            _originalImplementation.MethodReturnsVoid();
+                context.Args.Length.Should().Be(2, because: "this method has two parameters. ");
+                ((string)context.Args[0]).Should().Be("theS", because: "that is the value passed in. ");
+                ((int)context.Args[1]).Should().Be(98, because: "that is the value passed in. ");
 
-            // Assert
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsVoid)}", because: "the method should have fully completed without any callbacks. ");
-        }
+                context.Parameters.Count.Should().Be(2, because: "this method has two parameters. ");
+                ((int)context.Parameters["theInt"]).Should().Be(98, because: "this is the argument passed in. ");
+                ((string)context.Parameters["theString"]).Should().Be("theS", because: "this is the argument passed in. ");
+            }
 
-        [TestMethod]
-        public void MethodReturnsInt()
-        {
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsInt), withValue: 15)
-                .Build();
+            [TestMethod]
+            public void When_Method_Returns_A_Value()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.ReturnsIntWithValue10), withValue: 15)
+                    .Build();
 
-            // Act
-            var result = proxy.MethodReturnsInt();
+                // Act
+                var result = proxy.ReturnsIntWithValue10();
 
-            // Assert
-            result.Should().Be(15, because: "that is the stubbed value");
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-        }
+                // Assert
+                result.Should().Be(15, because: "that is the stubbed value");
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+            }
 
-        [TestMethod]
-        public void MethodReturnsIntNotIntercepted()
-        {
-            // Arrange, Act
-            _originalImplementation.MethodReturnsInt();
+            [TestMethod]
+            public async Task When_Method_Returns_A_Void_Task()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.ReturnsTaskThatIsVoid), Task.CompletedTask)
+                    .Build();
 
-            // Assert
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsInt)}", because: "the method should have fully completed without any callbacks. ");
-        }
+                // Act
+                await proxy.ReturnsTaskThatIsVoid();
 
-        [TestMethod]
-        public async Task MethodReturnsTaskVoid()
-        {
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoid), Task.CompletedTask)
-                .Build();
+                // Assert
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+            }
 
-            // Act
-            await proxy.MethodReturnsTaskVoid();
+            [TestMethod]
+            public async Task When_Method_Returns_A_Task_Result_Of_A_Primitive_Type()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.ReturnsTaskResultThatIsAnIntWithValue25), withValue: Task.FromResult(13))
+                   .Build();
 
-            // Assert
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-        }
+                // Act
+                await proxy.ReturnsTaskResultThatIsAnIntWithValue25();
 
-        [TestMethod]
-        public async Task MethodReturnsTaskVoidNotIntercepted()
-        {
-            // Arrange, Act
-            await _originalImplementation.MethodReturnsTaskVoid();
+                // Assert
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+            }
 
-            // Assert
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoid)}", because: "the method should have fully completed without any callbacks. ");
-        }
+            [TestMethod]
+            public async Task When_Method_Returns_A_Generic_Task_Result_Of_A_Primitive_Type()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.ReturnsGenericTaskResultThatIsAnIntWithValue10), withValue: Task.FromResult(17))
+                    .Build();
 
-        [TestMethod]
-        public async Task MethodReturnsGenericTaskInt()
-        {
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt), withValue: Task.FromResult(17))
-                .Build();
+                // Act
+                var result = await proxy.ReturnsGenericTaskResultThatIsAnIntWithValue10();
 
-            // Act
-            var result = await proxy.MethodReturnsGenericTaskInt();
+                // Assert
+                result.Should().Be(17, because: "the method was stubbed with the value 17. ");
 
-            // Assert
-            result.Should().Be(17, because: "the method was stubbed with the value 17. ");
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+            }
 
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-        }
+            [TestMethod]
+            public void When_Method_Is_Stubbed_To_Prevent_Exception_Being_Thrown()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.ReturnsTaskButThrowsAnExceptionInstead), Task.CompletedTask)
+                    .Build();
 
-        [TestMethod]
-        public async Task MethodReturnsTaskIntResult()
-        {
-            // Arrange
-             var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskIntResult), withValue: Task.FromResult(13))
-                .Build();
+                // Act
+                var task = proxy.ReturnsTaskButThrowsAnExceptionInstead();
 
-            // Act
-            await proxy.MethodReturnsTaskIntResult();
+                // Assert
+                task.Should().NotBeNull(because: "the exception was not thrown because we were stubbed. ");
+            }
 
-            // Assert
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-        }
+            [TestMethod]
+            public void When_Async_Method_Is_Void()
+            {
+                var value = 30;
 
-        [TestMethod]
-        public async Task MethodReturnsGenerictaskIntNotIntercepted()
-        {
-            // Arrange, Act
-            var result = await _originalImplementation.MethodReturnsGenericTaskInt();
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.AsyncIsVoid), dynamicValueProvider: context =>
+                {
+                    value = 20;
+                    return null;
+                }).Build();
 
-            // Assert
-            result.Should().Be(10, because: "the task should have completed by now. ");
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskInt)}", because: "the method should have fully completed without any callbacks. ");
-        }
+                // Act
+                proxy.AsyncIsVoid();
 
-        [TestMethod]
-        public void MethodReturnsTaskButThrowsException()
-        {
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskButThrowsException), Task.CompletedTask)
-                .Build();
+                // Wait for the Async to absolutely finish.
+                System.Threading.Thread.Sleep(200);
 
-            // Act
-            var task = proxy.MethodReturnsTaskButThrowsException();
+                // Assert
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+                value.Should().Be(20, because: "that is the stubbed value we provided. ");
+            }
 
-            // Assert
-            task.Should().NotBeNull(because: "the exception was not thrown because we were stubbed. ");
-        }
+            [TestMethod]
+            public async Task When_Async_Method_Returns_A_Void_Task()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.AsyncReturnsVoidTask), withValue: Task.CompletedTask)
+                    .Build();
 
-        [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void MethodReturnsTaskButThrowsExceptionNotIntercepted()
-        {
-            // Arrange, Act, Assert
-            _originalImplementation.MethodReturnsTaskButThrowsException().Wait();
-        }
+                // Act
+                await proxy.AsyncReturnsVoidTask();
 
-        [TestMethod]
-        public async Task MethodReturnsTaskVoidAsync()
-        {
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync), withValue: Task.CompletedTask)
-                .Build();
+                // Assert
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+            }
 
-            // Act
-            await proxy.MethodReturnsTaskVoidAsync();
-
-            // Assert
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-        }
-
-        [TestMethod]
-        public async Task MethodReturnsTaskVoidAsyncNotIntercepted()
-        {
-            // Arrange, Act
-            await _originalImplementation.MethodReturnsTaskVoidAsync();
-
-            // Assert
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsTaskVoidAsync)}", because: "the method should have fully completed without any callbacks. ");
-        }
-
-        [TestMethod]
-        public async Task MethodReturnsGenericTaskAsync()
-        {
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskAsync), withValue: Task.FromResult(new Product[1] { 
+            [TestMethod]
+            public async Task When_Async_Method_Returns_A_Generic_Task_Of_Objects()
+            {
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.AsyncReturnsGenericTaskResult), withValue: Task.FromResult(new Product[1] {
                 new Product()
                 {
                     Name = "MockedName1",
                     Description = "MockedDescription1"
                 }
             } as IEnumerable<Product>))
-           .Build();
+               .Build();
 
-            // Act
-            var result = await proxy.MethodReturnsGenericTaskAsync();
+                // Act
+                var result = await proxy.AsyncReturnsGenericTaskResult();
 
-            // Assert
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+                // Assert
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
 
-            var products = result as IEnumerable<Product>;
-            products.Should().NotBeNull(because: "we have stubbed a single product. ");
+                var products = result as IEnumerable<Product>;
+                products.Should().NotBeNull(because: "we have stubbed a single product. ");
 
-            products.Count().Should().Be(1, because: "the stubbed to return one product ");
-            products.First().Name.Should().Be("MockedName1", because: "that is the product name ");
-            products.First().Description.Should().Be("MockedDescription1", because: "that is the product name ");
+                products.Count().Should().Be(1, because: "the stubbed to return one product ");
+                products.First().Name.Should().Be("MockedName1", because: "that is the product name ");
+                products.First().Description.Should().Be("MockedDescription1", because: "that is the product name ");
+            }
         }
 
-        [TestMethod]
-        public async Task MethodReturnsGenericTaskNotInterceptedAsync()
+        [TestClass]
+        public class Has_No_Effect_On_Behavior_If_Not_Stubbed : AfterExecutionOfTestBase
         {
-            // Arrange, Act
-            var result = await _originalImplementation.MethodReturnsGenericTaskAsync();
-
-            // Assert
-            result.Count().Should().Be(2, because: "that is how many products are returned in the real method. ");
-
-            _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionTestInterface.MethodReturnsGenericTaskAsync)}", because: "the method should have fully completed without any callbacks. ");
-        }
-
-
-
-        [TestMethod]
-        public void MethodHasNoParameters_DynamicValue()
-        {
-            IMethodCallContext context = default;
-
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodAsNoParameters), dynamicValueProvider: callContext => 
+            [TestMethod]
+            public void When_Method_Is_Void()
             {
-                context = callContext;
-                return  25; 
-            })
-                .Build();
+                // Arrange, Act
+                _originalImplementation.IsVoid();
 
-            // Act
-            var result = proxy.MethodAsNoParameters();
+                // Assert
+                _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionMethodSignatures.IsVoid)}", because: "the method should have fully completed without any callbacks. ");
+            }
 
-            // Assert
-            result.Should().Be(25, because: "that is the stubbed value");
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-
-            context.Args.Length.Should().Be(0, because: "this method has no parameters. ");
-            context.Parameters.Count.Should().Be(0, because: "this method has no parameters. ");
-        }
-
-        [TestMethod]
-        public void MethodHasOneParameter_DynamicValue()
-        {
-            IMethodCallContext context = default;
-
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodHasOneParameter), dynamicValueProvider: callContext =>
+            [TestMethod]
+            public void When_Method_Returns_A_Value()
             {
-                context = callContext;
-                return 35;
-            })
-                .Build();
+                // Arrange, Act
+                _originalImplementation.ReturnsIntWithValue10();
 
-            // Act
-            var result = proxy.MethodHasOneParameter(65);
+                // Assert
+                _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionMethodSignatures.ReturnsIntWithValue10)}", because: "the method should have fully completed without any callbacks. ");
+            }
 
-            // Assert
-            result.Should().Be(35, because: "that is the stubbed value");
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
-
-            context.Args.Length.Should().Be(1, because: "this method has one parameter. ");
-            ((int)context.Args[0]).Should().Be(65, because: "that is the value passed in. ");
-            
-            context.Parameters.Count.Should().Be(1, because: "this method has one parameter. ");
-            ((int) context.Parameters["theInt"]).Should().Be(65, because: "this method has one parameter. ");
-        }
-
-        [TestMethod]
-        public void MethodHasTwoParameters_DynamicValue()
-        {
-            IMethodCallContext context = default;
-
-            // Arrange
-            var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionTestInterface.MethodHasTwoParameters), dynamicValueProvider: callContext =>
+            [TestMethod]
+            public async Task When_Method_Returns_A_Void_Task()
             {
-                context = callContext;
-                return 14;
-            })
-            .Build();
+                // Arrange, Act
+                await _originalImplementation.ReturnsTaskThatIsVoid();
 
-            // Act
-            var result = proxy.MethodHasTwoParameters(theString: "theS", theInt: 98);
+                // Assert
+                _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionMethodSignatures.ReturnsTaskThatIsVoid)}", because: "the method should have fully completed without any callbacks. ");
+            }
 
-            // Assert
-            result.Should().Be(14, because: "that is the stubbed value");
-            _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+            [TestMethod]
+            public async Task When_Method_Returns_Generic_Task_Of_Primitive_Type()
+            {
+                // Arrange, Act
+                var result = await _originalImplementation.ReturnsGenericTaskResultThatIsAnIntWithValue10();
 
-            context.Args.Length.Should().Be(2, because: "this method has two parameters. ");
-            ((string)context.Args[0]).Should().Be("theS", because: "that is the value passed in. ");
-            ((int)context.Args[1]).Should().Be(98, because: "that is the value passed in. ");
+                // Assert
+                result.Should().Be(10, because: "the task should have completed by now. ");
+                _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionMethodSignatures.ReturnsGenericTaskResultThatIsAnIntWithValue10)}", because: "the method should have fully completed without any callbacks. ");
+            }
 
-            context.Parameters.Count.Should().Be(2, because: "this method has two parameters. ");
-            ((int)context.Parameters["theInt"]).Should().Be(98, because: "this is the argument passed in. ");
-            ((string)context.Parameters["theString"]).Should().Be("theS", because: "this is the argument passed in. ");
+
+            [TestMethod]
+            [ExpectedException(typeof(AggregateException))]
+            public void When_Method_Returns_A_Task_But_Throws_An_Exception()
+            {
+                // Arrange, Act, Assert
+                _originalImplementation.ReturnsTaskButThrowsAnExceptionInstead().Wait();
+            }
+
+            [TestMethod]
+            public async Task When_Async_Method_Returns_Void_Task()
+            {
+                // Arrange, Act
+                await _originalImplementation.AsyncReturnsVoidTask();
+
+                // Assert
+                _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionMethodSignatures.AsyncReturnsVoidTask)}", because: "the method should have fully completed without any callbacks. ");
+            }
+
+            [TestMethod]
+            public async Task When_Async_Method_Returns_Generic_Task_Of_Objects()
+            {
+                // Arrange, Act
+                var result = await _originalImplementation.AsyncReturnsGenericTaskResult();
+
+                // Assert
+                result.Count().Should().Be(2, because: "that is how many products are returned in the real method. ");
+
+                _originalImplementation.Message.Should().Be($"Invoked: {nameof(IAfterExecutionMethodSignatures.AsyncReturnsGenericTaskResult)}", because: "the method should have fully completed without any callbacks. ");
+            }
         }
     }
 }

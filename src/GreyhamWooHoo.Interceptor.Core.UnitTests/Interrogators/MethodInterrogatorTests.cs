@@ -13,7 +13,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         ReturnValueTestClass cut;
 
         [TestInitialize]
-        public void setupReturnValueInterrogatorTests()
+        public void SetupReturnValueInterrogatorTests()
         {
             cut = new ReturnValueTestClass();
             returnValueInterrogator = new MethodInterrogator();
@@ -27,7 +27,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
         [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
         [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
-        public void MethodIsVoid(bool isVoid, string methodName)
+        public void Knows_A_Method_Is_Void(bool isVoid, string methodName)
         {
             // Arrange
             var methodInfo = cut.GetType().GetMethod(methodName);
@@ -47,7 +47,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
         [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
-        public void MethodReturnsTask(bool isTask, string methodName)
+        public void Knows_A_Method_Returns_A_Task(bool isTask, string methodName)
         {
             // Arrange
             var methodInfo = cut.GetType().GetMethod(methodName);
@@ -67,7 +67,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
-        public void MethodIsAsync(bool isAsync, string methodName)
+        public void Knows_A_Method_Is_Async(bool isAsync, string methodName)
         {
             // Arrange
             var methodInfo = cut.GetType().GetMethod(methodName);
@@ -87,7 +87,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
         [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
-        public void MethodIsAwaitable(bool isAwaitable, string methodName)
+        public void Knows_A_Method_Is_Awaitable(bool isAwaitable, string methodName)
         {
             // Arrange
             var methodInfo = cut.GetType().GetMethod(methodName);
@@ -107,7 +107,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Interrogators
         [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodReturnsTask))]
         [DataRow(false, nameof(ReturnValueTestClass.AsyncMethodIsVoid))]
         [DataRow(true, nameof(ReturnValueTestClass.AsyncMethodReturnsTaskGenericInt))]
-        public void MethodReturnsGenericTask(bool isGenericTask, string methodName)
+        public void Knows_A_Method_Returns_A_Generic_Task_Result(bool isGenericTask, string methodName)
         {
             // Arrange
             var methodInfo = cut.GetType().GetMethod(methodName);
