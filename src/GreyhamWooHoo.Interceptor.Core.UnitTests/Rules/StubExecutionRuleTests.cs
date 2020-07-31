@@ -2,13 +2,13 @@
 using GreyhamWooHoo.Interceptor.Core.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GreyhamWooHoo.Interceptor.Core.UnitTests
+namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Rules
 {
     [TestClass]
     public class StubExecutionRuleTests
     {
         [TestMethod]
-        public void FixedValueWhenValueIsSupplied()
+        public void When_Fixed_Value_Is_Provided()
         {
             // Arrange, Act
             var stubExecutionRule = new StubExecutionRule("theMethodName", 10);
@@ -23,7 +23,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void WhenCallbackIsSupplied()
+        public void When_Callback_To_Return_Dynamic_Value_Is_Provided()
         {
             // Arrange, Act
             var stubExecutionRule = new StubExecutionRule("theMethodName", withValueProvider: callContext => { return 10; });
@@ -38,7 +38,7 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
         }
 
         [TestMethod]
-        public void WhenNoValueAndNoMethodIsProvided()
+        public void When_No_Callback_And_No_Fixed_Value_Provided()
         {
             // Arrange, Act
             var stubExecutionRule = new StubExecutionRule("theMethodName");

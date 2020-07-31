@@ -1,4 +1,4 @@
-﻿namespace GreyhamWooHoo.Interceptor.Core.UnitTests
+﻿namespace GreyhamWooHoo.Interceptor.Core.UnitTests.Exceptions
 {
     public class CustomTaskException : System.Exception
     {

@@ -3,28 +3,29 @@ using FluentAssertions.Execution;
 using GreyhamWooHoo.Interceptor.Core.Builders;
 using GreyhamWooHoo.Interceptor.Core.Contracts;
 using GreyhamWooHoo.Interceptor.Core.Contracts.Generic;
-using GreyhamWooHoo.Interceptor.Core.UnitTests.ReturnValue;
+using GreyhamWooHoo.Interceptor.Core.UnitTests.ServicesToIntercept;
+using GreyhamWooHoo.Interceptor.Core.UnitTests.ServicesToIntercept.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GreyhamWooHoo.Interceptor.Core.UnitTests
 {
     [TestClass]
-    public class AfterTestBase
+    public class AfterExecutionOfTestBase
     {
-        protected readonly AfterExecutionTestImplementation _originalImplementation = new AfterExecutionTestImplementation();
+        protected readonly AfterExecutionMethodSignatures _originalImplementation = new AfterExecutionMethodSignatures();
 
-        protected IInterceptorProxyBuilder<IAfterExecutionTestInterface> _builder;
+        protected IInterceptorProxyBuilder<IAfterExecutionMethodSignatures> _builder;
 
         [TestInitialize]
         public void SetupReturnValueTests()
         {
-            _builder = new InterceptorProxyBuilder<IAfterExecutionTestInterface>()
+            _builder = new InterceptorProxyBuilder<IAfterExecutionMethodSignatures>()
                 .For(_originalImplementation);
         }
 
         protected void AssertReturnValue(string forMethod, int isValue, IAfterExecutionResult inResult)
         {
-            AssertReturnValue(forMethod, true, inResult);
+            AssertReturnValue(forMethod, hasReturnValue: true, inResult);
             
             inResult.ReturnValue.Should().Be(isValue, because: "that is the hard coded value returned from the method. ");
         }
