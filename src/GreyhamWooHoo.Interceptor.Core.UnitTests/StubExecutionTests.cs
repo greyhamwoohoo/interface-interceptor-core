@@ -186,6 +186,29 @@ namespace GreyhamWooHoo.Interceptor.Core.UnitTests
             }
 
             [TestMethod]
+            public void When_Async_Method_Is_Void()
+            {
+                var value = 30;
+
+                // Arrange
+                var proxy = _builder.InterceptAndStub(theMethodCalled: nameof(IAfterExecutionMethodSignatures.AsyncIsVoid), dynamicValueProvider: context =>
+                {
+                    value = 20;
+                    return null;
+                }).Build();
+
+                // Act
+                proxy.AsyncIsVoid();
+
+                // Wait for the Async to absolutely finish.
+                System.Threading.Thread.Sleep(200);
+
+                // Assert
+                _originalImplementation.Message.Should().Be(null, because: "the method was stubbed and not executed. ");
+                value.Should().Be(20, because: "that is the stubbed value we provided. ");
+            }
+
+            [TestMethod]
             public async Task When_Async_Method_Returns_A_Void_Task()
             {
                 // Arrange
